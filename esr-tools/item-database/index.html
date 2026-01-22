@@ -1,0 +1,677 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ESR Item Database</title>
+    <style>
+        :root {
+            --bg-color: #121212;
+            --header-bg: #1a1a1a;
+            --input-bg: #050505;
+            --text-color: #cccccc;
+            --border-color: #333;
+            --highlight-bg: #222;
+            --link-color: #ffd700;
+            --diablo-gold: #cda869; 
+            
+            /* Tier Colors */
+            --strip-normal: #666666;
+            --strip-except: #d35400;
+            --strip-elite: #f1c40f;  
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            padding-top: 95px;
+            font-size: 13px;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        /* --- Fixed Header --- */
+        #header-area {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            background-color: var(--bg-color);
+            z-index: 1000;
+            border-bottom: 1px solid var(--border-color);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.9);
+        }
+
+        /* Top Row Layout: Centered Groups */
+        #search-row {
+            height: 45px;
+            padding: 0 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center; /* REQ: Grouped in middle */
+            background: #000;
+            gap: 25px; /* Space between the three groups */
+        }
+
+        /* Groups */
+        .header-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* External Links */
+        .ext-link {
+            color: #888;
+            text-decoration: none;
+            font-size: 11px;
+            display: flex;
+            align-items: center;
+            gap: 3px;
+            border: 1px solid #333;
+            padding: 2px 6px;
+            border-radius: 3px;
+            background: #0a0a0a;
+            white-space: nowrap;
+            transition: all 0.2s;
+        }
+        .ext-link:hover {
+            color: #fff;
+            border-color: #666;
+            background: #222;
+        }
+        .ext-arrow { font-size: 9px; }
+
+        /* Brand */
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            user-select: none;
+        }
+        .brand img { height: 24px; width: auto; }
+        .brand span {
+            font-weight: bold;
+            color: #d4c4a8;
+            font-size: 14px;
+            white-space: nowrap;
+        }
+
+        /* Search Inputs */
+        #search-input {
+            width: 400px; /* Fixed width for stability */
+            padding: 4px 10px;
+            font-size: 14px;
+            background-color: #151515;
+            border: 1px solid #444;
+            color: #fff;
+            border-radius: 2px;
+        }
+        #search-input:focus { border-color: var(--diablo-gold); outline: none; }
+
+        #clear-btn {
+            background-color: #222;
+            border: 1px solid #444;
+            color: #888;
+            font-size: 11px;
+            padding: 4px 10px;
+            cursor: pointer;
+            text-transform: uppercase;
+            border-radius: 2px;
+            white-space: nowrap;
+        }
+        #clear-btn:hover { background-color: #333; color: #fff; border-color: #666; }
+
+        .search-options { font-size: 12px; color: #888; display: flex; align-items: center; white-space: nowrap; }
+        .search-options input { margin-right: 5px; cursor: pointer; }
+        .search-options label { cursor: pointer; }
+
+        /* Status & Version */
+        #status-msg { font-size: 11px; color: #555; cursor: help; white-space: nowrap; }
+        .version-tag { font-size: 11px; color: #666; font-family: monospace; border: 1px solid #333; padding: 1px 4px; border-radius: 3px;}
+
+        /* Tooltip Icon */
+        .info-icon {
+            color: #888;
+            font-size: 12px;
+            cursor: pointer;
+            border: 1px solid #444;
+            width: 16px;
+            height: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            position: relative;
+        }
+        .info-icon:hover { color: #fff; border-color: #fff; background: #333; }
+        .info-icon:hover::after {
+            content: attr(data-tooltip);
+            position: absolute;
+            top: 25px;
+            right: -50px; /* Adjusted since it's now in the middle */
+            width: 250px;
+            background-color: #1a1a1a;
+            color: #ccc;
+            border: 1px solid var(--diablo-gold);
+            padding: 10px;
+            font-size: 11px;
+            line-height: 1.4;
+            white-space: pre-wrap;
+            z-index: 2000;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.9);
+            border-radius: 4px;
+            text-align: left;
+        }
+
+        /* Navigation Strip */
+        #nav-row {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 3px;
+            padding: 4px 10px;
+            background-color: #101010;
+            border-top: 1px solid #222;
+        }
+
+        .nav-btn {
+            background: #1e1e1e;
+            border: 1px solid #333;
+            color: #888;
+            padding: 2px 8px;
+            cursor: pointer;
+            font-size: 11px;
+            text-transform: uppercase;
+            text-decoration: none;
+            transition: 0.2s;
+            border-radius: 2px;
+        }
+        .nav-btn:hover { background-color: #333; color: #fff; border-color: #555; }
+
+        /* --- Main Content --- */
+        #main-content {
+            max-width: 1500px; 
+            margin: 0 auto;
+            padding: 15px;
+            flex: 1; 
+            width: 98%;
+        }
+
+        .section-header {
+            margin-top: 50px;
+            padding-top: 100px;
+            margin-bottom: 15px;
+            border-bottom: 1px solid #444;
+            color: var(--diablo-gold);
+            font-size: 1.5em;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            text-shadow: 1px 1px 2px #000;
+        }
+        .anchor-offset { position: absolute; margin-top: -100px; }
+
+        /* --- Tables --- */
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            margin-bottom: 15px; 
+            background-color: transparent;
+            table-layout: auto; 
+        }
+
+        th {
+            background-color: var(--header-bg);
+            color: #ddd;
+            font-weight: bold;
+            text-align: left;
+            padding: 4px 6px;
+            border: 1px solid #333;
+            white-space: nowrap; 
+        }
+
+        td {
+            border: 1px solid #252525;
+            padding: 2px 5px; 
+            vertical-align: top;
+            color: #bbb;
+        }
+
+        tr {
+            background-color: #0b0b0b; 
+        }
+        tr:hover {
+            background-color: var(--highlight-bg) !important;
+        }
+
+        /* REQ: Centered content for Gems and Cube sections */
+        #gems td, #gems th, #cube td, #cube th {
+            text-align: center !important;
+        }
+
+        /* REQ: Cube Links styling */
+        #cube a {
+            color: var(--diablo-gold);
+            font-weight: bold;
+            text-decoration: none;
+        }
+        #cube a:hover {
+            text-decoration: underline;
+            color: #fff;
+        }
+
+        /* Gold Colored Base Items */
+        .base-item-text { color: var(--diablo-gold) !important; font-weight: bold; }
+
+        /* Tier Strips */
+        tr.tier-normal td:first-child { border-left: 6px solid var(--strip-normal) !important; }
+        tr.tier-except td:first-child { border-left: 6px solid var(--strip-except) !important; }
+        tr.tier-elite td:first-child { border-left: 6px solid var(--strip-elite) !important; }
+
+        /* Color Fixes */
+        font[color="#0000ff"], font[color="blue"], span[style*="blue"], b[style*="blue"] { color: #6699ff !important; }
+        font[color="#800000"], font[color="red"] { color: #ff6666 !important; }
+        font[color="#908020"], font[color="gold"], b[style*="gold"] { color: #d4af37 !important; }
+        font[color="#00c400"], font[color="green"] { color: #00cc00 !important; }
+
+        .mythical-base-fix { color: var(--diablo-gold) !important; font-weight: bold; }
+
+        img { max-width: 100%; height: auto; display: block; opacity: 0.85; }
+        img:hover { opacity: 1; }
+
+        .hidden { display: none !important; }
+        .loading { color: #ebaa34; }
+        .success { color: #55ff55; }
+        .error { color: #ff5555; }
+
+        /* Footer */
+        #page-footer {
+            text-align: center;
+            padding: 20px;
+            margin-top: 40px;
+            border-top: 1px solid #222;
+            color: var(--diablo-gold);
+            font-size: 12px;
+            background-color: #080808;
+        }
+
+    </style>
+</head>
+<body>
+
+    <div id="header-area">
+        <div id="search-row">
+            
+            <!-- LEFT GROUP -->
+            <div class="header-group">
+                <!-- REQ: Renamed to ESR Tools -->
+                <a href="https://https://doubleeclipse.github.io/esr-tools/" class="ext-link" target="_blank">
+                    ESR Tools <span class="ext-arrow">↗</span>
+                </a>
+                <div class="brand">
+                    <img src="https://celestialrayone.github.io/Eastern_Sun_Resurrected/docs/images/esricon.png" alt="Icon">
+                    <span>ESR Item DB</span>
+                </div>
+            </div>
+
+            <!-- CENTER GROUP -->
+            <div class="header-group">
+                <input type="text" id="search-input" placeholder="Search... (Alt+Z to Select)">
+                <button id="clear-btn" title="Alt+R">Clear (Alt+R)</button>
+                <div class="search-options">
+                    <label title='Only matches if the term is at the very end of a line/stat. Example: "Teleport" matches "+1 to Teleport", but ignores "Teleport (Sorceress Only)", "Teleport Charges", etc.'>
+                        <input type="checkbox" id="strict-mode"> Oskill Hunter
+                    </label>
+                </div>
+            </div>
+
+            <!-- RIGHT GROUP -->
+            <div class="header-group">
+                <span id="status-msg">Init...</span>
+                <span class="version-tag">Alpha v0.13</span>
+                
+                <div class="info-icon" data-tooltip="-- HOW TO --
+Type in the search bar to filter items instantly.
+Hotkeys: Alt+Z (Focus), Alt+R (Clear).
+
+-- KNOWN ISSUES --
+• Runeword/Gemword checkboxes are currently visual only and do not filter rows.
+• Column widths may vary slightly between sections.">?</div>
+
+                <!-- REQ: Renamed to ESR Off Site -->
+                <a href="https://celestialrayone.github.io/Eastern_Sun_Resurrected/docs/changelogs.html" class="ext-link" target="_blank">
+                    ESR Off Site <span class="ext-arrow">↗</span>
+                </a>
+            </div>
+
+        </div>
+        
+        <div id="nav-row">
+            <!-- Navigation Buttons -->
+        </div>
+    </div>
+
+    <div id="main-content">
+        <!-- Content -->
+    </div>
+
+    <footer id="page-footer">
+        Tool vibe coded by DoubleEclipse using Google AI Studio
+    </footer>
+
+<script>
+    const sources = [
+        { id: "u_armors", name: "Unique Armors", url: "https://celestialrayone.github.io/Eastern_Sun_Resurrected/docs/unique_armors.htm" },
+        { id: "u_weapons", name: "Unique Weapons", url: "https://celestialrayone.github.io/Eastern_Sun_Resurrected/docs/unique_weapons.htm" },
+        { id: "u_others", name: "Unique Others", url: "https://celestialrayone.github.io/Eastern_Sun_Resurrected/docs/unique_others.htm" },
+        { id: "u_mythicals", name: "Unique Mythicals", url: "https://celestialrayone.github.io/Eastern_Sun_Resurrected/docs/unique_mythicals.htm" },
+        { id: "sets", name: "Sets", url: "https://celestialrayone.github.io/Eastern_Sun_Resurrected/docs/sets.htm" },
+        { id: "runewords", name: "Runewords", url: "https://celestialrayone.github.io/Eastern_Sun_Resurrected/docs/runewords.htm" },
+        { id: "gemwords", name: "Gemwords", url: "https://celestialrayone.github.io/Eastern_Sun_Resurrected/docs/gemwords.htm" },
+        { id: "base_armors", name: "Base Armors", url: "https://celestialrayone.github.io/Eastern_Sun_Resurrected/docs/armors.htm" },
+        { id: "base_weapons", name: "Base Weapons", url: "https://celestialrayone.github.io/Eastern_Sun_Resurrected/docs/weapons.htm" },
+        { id: "prefixes", name: "Prefixes", url: "https://celestialrayone.github.io/Eastern_Sun_Resurrected/docs/prefixes.htm" },
+        { id: "suffixes", name: "Suffixes", url: "https://celestialrayone.github.io/Eastern_Sun_Resurrected/docs/suffixes.htm" },
+        { id: "gems", name: "Gems/Runes", url: "https://celestialrayone.github.io/Eastern_Sun_Resurrected/docs/gems.htm", keepColors: true },
+        { id: "cube", name: "Cube Recipes", url: "https://celestialrayone.github.io/Eastern_Sun_Resurrected/docs/Eastern%20Sun%20Resurrected%20Cube%20Recipes.html", keepColors: true }
+    ];
+
+    const container = document.getElementById('main-content');
+    const navRow = document.getElementById('nav-row');
+    const searchInput = document.getElementById('search-input');
+    const clearBtn = document.getElementById('clear-btn');
+    const strictModeCheckbox = document.getElementById('strict-mode');
+    const statusMsg = document.getElementById('status-msg');
+    let loadedFiles = [];
+
+    function initNav() {
+        navRow.innerHTML = '';
+        sources.forEach(source => {
+            const btn = document.createElement('a');
+            btn.href = '#' + source.id;
+            btn.className = 'nav-btn';
+            btn.textContent = source.name;
+            navRow.appendChild(btn);
+        });
+    }
+
+    async function loadAllData() {
+        statusMsg.innerHTML = '<span class="loading">Loading...</span>';
+        let loadedCount = 0;
+
+        for (const source of sources) {
+            try {
+                const response = await fetch(source.url);
+                if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                const text = await response.text();
+                processSource(source, text);
+                
+                loadedCount++;
+                loadedFiles.push(`✅ ${source.name}`);
+                statusMsg.textContent = `${loadedCount}/${sources.length}`;
+            } catch (err) {
+                console.error(`Failed: ${source.name}`, err);
+                loadedFiles.push(`❌ ${source.name}`);
+            }
+        }
+        statusMsg.innerHTML = '<span class="success">Ready</span>';
+        statusMsg.title = loadedFiles.join('\n');
+    }
+
+    function processSource(source, htmlText) {
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(htmlText, 'text/html');
+
+        const sectionWrapper = document.createElement('div');
+        sectionWrapper.id = source.id;
+
+        const anchor = document.createElement('div');
+        anchor.className = 'anchor-offset';
+        anchor.id = source.id;
+        sectionWrapper.appendChild(anchor);
+
+        const title = document.createElement('h2');
+        title.className = 'section-header';
+        title.textContent = source.name;
+        sectionWrapper.appendChild(title);
+
+        const tables = doc.querySelectorAll('table');
+        tables.forEach(table => {
+            // REQ: Skip junk filtering for Cube to restore Nav Strips
+            if (isJunkTable(table, source.id)) return;
+
+            fixImages(table, source.url);
+            cleanTableText(table);
+            tagBaseItems(table);
+            identifyAndTagTiers(table);
+            
+            if (source.id === "u_mythicals") {
+                fixMythicalBases(table);
+            }
+
+            applyUnifiedFormatting(table, source.keepColors);
+            identifyHeaderRows(table);
+
+            sectionWrapper.appendChild(table);
+        });
+
+        container.appendChild(sectionWrapper);
+    }
+
+    // REQ: Update junk filter to ignore 'cube' id
+    function isJunkTable(table, sourceId) {
+        if (sourceId === 'cube') return false; // Always allow tables in Cube
+
+        const txt = table.textContent || "";
+        const junkKeywords = ["Changelogs", "Uni Armor", "Uni Weapons", "Uni Other", "Uni Mythicals", "Mercenary and Oskill"];
+        let matchCount = 0;
+        junkKeywords.forEach(k => { if(txt.includes(k)) matchCount++; });
+        if (matchCount >= 3) return true;
+        if (txt.includes("[General]") && txt.includes("[Grand Charms]") && txt.includes("[Jewels]")) return true;
+        if (txt.includes("[[Changelogs]]") || txt.includes("[[Armor]]")) return true;
+        return false;
+    }
+
+    function fixImages(table, baseUrl) {
+        const images = table.querySelectorAll('img');
+        images.forEach(img => {
+            const src = img.getAttribute('src');
+            if (src && !src.startsWith('http')) {
+                try {
+                    const absUrl = new URL(src, baseUrl).href;
+                    img.src = absUrl;
+                } catch(e) { console.warn("Bad image URL", src); }
+            }
+        });
+    }
+
+    function tagBaseItems(table) {
+        const walker = document.createTreeWalker(table, NodeFilter.SHOW_TEXT, null, false);
+        let node;
+        while(node = walker.nextNode()) {
+            const text = node.nodeValue.trim();
+            if (/^[A-Za-z\s']+\([a-z0-9]{2,4}\)$/.test(text)) {
+                const parent = node.parentElement;
+                if (parent) parent.classList.add('base-item-text');
+            }
+        }
+    }
+
+    function fixMythicalBases(table) {
+        const fonts = table.querySelectorAll('font[color="blue"], font[color="#0000ff"]');
+        fonts.forEach(f => {
+            f.classList.add('mythical-base-fix');
+            const parentLink = f.closest('a');
+            if (parentLink) {
+                parentLink.style.textDecoration = 'none';
+                parentLink.style.color = 'var(--diablo-gold)';
+            }
+        });
+    }
+
+    function identifyAndTagTiers(table) {
+        const rows = table.querySelectorAll('tr');
+        rows.forEach(row => {
+            let foundColor = null;
+            if (row.hasAttribute('bgcolor')) foundColor = row.getAttribute('bgcolor');
+            else if (row.style.backgroundColor) foundColor = row.style.backgroundColor;
+
+            if (!foundColor) {
+                for (let i = 0; i < row.cells.length; i++) {
+                    const cell = row.cells[i];
+                    if (cell.hasAttribute('bgcolor')) {
+                        foundColor = cell.getAttribute('bgcolor');
+                        break;
+                    }
+                    if (cell.style.backgroundColor) {
+                        foundColor = cell.style.backgroundColor;
+                        break;
+                    }
+                }
+            }
+
+            if (foundColor) {
+                const c = foundColor.toLowerCase();
+                if (c.includes('#ff') || c === 'white' || c.includes('255, 255, 255') || c === '#f0f0f0') {
+                    row.classList.add('tier-normal');
+                } else if (c.includes('#c0') || c.includes('silver') || c.includes('lightgray') || c === 'gray') {
+                    row.classList.add('tier-except');
+                } else if (c.includes('#80') || c.includes('darkgray') || c.includes('gold')) {
+                    row.classList.add('tier-elite');
+                }
+            }
+        });
+    }
+
+    function applyUnifiedFormatting(table, keepColors) {
+        const tableAttrs = ['width', 'height', 'border', 'cellpadding', 'cellspacing', 'align'];
+        tableAttrs.forEach(attr => table.removeAttribute(attr));
+        table.style.cssText = ''; 
+        table.style.width = '100%'; 
+
+        const allElements = table.querySelectorAll('*');
+        allElements.forEach(el => {
+            el.removeAttribute('height');
+            el.removeAttribute('align');
+            el.removeAttribute('valign');
+            if (el.style.height) el.style.height = '';
+
+            if (!keepColors) {
+                el.removeAttribute('bgcolor');
+                if (el.style.backgroundColor) el.style.backgroundColor = '';
+            }
+        });
+    }
+
+    function identifyHeaderRows(table) {
+        const rows = table.querySelectorAll('tr');
+        if (rows.length > 0) rows[0].classList.add('header-row');
+        for (let i = 0; i < Math.min(rows.length, 3); i++) {
+            const rowText = rows[i].innerText.toLowerCase();
+            if (rowText.includes("name") && rowText.includes("stats") && rowText.includes("properties")) {
+                rows[i].classList.add('header-row');
+            }
+            const cells = rows[i].cells;
+            for (let c of cells) {
+                if (c.hasAttribute('width') || c.style.width) {
+                    rows[i].classList.add('header-row');
+                    break; 
+                }
+            }
+        }
+    }
+
+    function cleanTableText(table) {
+        const walker = document.createTreeWalker(table, NodeFilter.SHOW_TEXT, null, false);
+        let node;
+        while(node = walker.nextNode()) {
+            let text = node.nodeValue;
+            if (text.match(/[\n\t]/)) {
+                text = text.replace(/\s*[\n\t\r]+\s*/g, ' ');
+                node.nodeValue = text;
+            }
+        }
+    }
+
+    function escapeRegExp(string) {
+        return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    }
+
+    function clearSearch() {
+        searchInput.value = '';
+        performSearch();
+        searchInput.focus();
+    }
+
+    function performSearch() {
+        const term = searchInput.value.toLowerCase().trim();
+        const strict = strictModeCheckbox.checked;
+        const tables = document.querySelectorAll('#main-content table');
+        
+        if (!term) {
+            document.querySelectorAll('.hidden').forEach(el => el.classList.remove('hidden'));
+            return;
+        }
+
+        tables.forEach(table => {
+            let tableVisible = false;
+            const rows = table.querySelectorAll('tr');
+            
+            rows.forEach(row => {
+                if (row.classList.contains('header-row') || row.querySelector('th')) {
+                    row.classList.remove('hidden'); 
+                    return;
+                }
+                
+                const rowText = row.innerText; 
+                let match = false;
+                if (strict) {
+                    const lines = rowText.split(/\n/);
+                    for (let line of lines) {
+                        if (new RegExp(`\\b${escapeRegExp(term)}$`, 'i').test(line.trim())) {
+                            match = true; break;
+                        }
+                    }
+                } else {
+                    if (rowText.toLowerCase().includes(term)) match = true;
+                }
+
+                if (match) {
+                    row.classList.remove('hidden');
+                    tableVisible = true;
+                } else {
+                    row.classList.add('hidden');
+                }
+            });
+
+            if (tableVisible) table.classList.remove('hidden');
+            else table.classList.add('hidden');
+        });
+    }
+
+    searchInput.addEventListener('input', performSearch);
+    strictModeCheckbox.addEventListener('change', performSearch);
+    clearBtn.addEventListener('click', clearSearch);
+
+    document.addEventListener('keydown', (e) => {
+        if (e.altKey && e.code === 'KeyR') {
+            e.preventDefault();
+            clearSearch();
+        }
+        if (e.altKey && e.code === 'KeyZ') {
+            e.preventDefault();
+            searchInput.focus();
+            searchInput.select();
+        }
+    });
+
+    initNav();
+    loadAllData();
+
+</script>
+</body>
+</html>
