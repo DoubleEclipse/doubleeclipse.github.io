@@ -19,6 +19,11 @@
             --strip-normal: #666666;
             --strip-except: #d35400;
             --strip-elite: #f1c40f;  
+            
+            /* Text Match Highlight */
+            --text-highlight-bg: rgba(0, 255, 255, 0.15);
+            --text-highlight-color: #fff;
+            --text-highlight-border: 1px solid rgba(0, 255, 255, 0.4);
         }
 
         body {
@@ -27,7 +32,7 @@
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             margin: 0;
             padding: 0;
-            padding-top: 95px;
+            padding-top: 100px;
             font-size: 13px;
             display: flex;
             flex-direction: column;
@@ -46,22 +51,34 @@
             box-shadow: 0 4px 10px rgba(0,0,0,0.9);
         }
 
-        /* Top Row Layout: Centered Groups */
+        /* Top Row Layout */
         #search-row {
-            height: 45px;
-            padding: 0 15px;
+            min-height: 45px;
+            padding: 5px 15px;
             display: flex;
             align-items: center;
-            justify-content: center; /* REQ: Grouped in middle */
+            justify-content: center; 
             background: #000;
-            gap: 25px; /* Space between the three groups */
+            gap: 20px; 
+            flex-wrap: wrap; 
         }
 
-        /* Groups */
         .header-group {
             display: flex;
             align-items: center;
             gap: 10px;
+            flex-shrink: 0;
+        }
+
+        /* Responsive */
+        @media (max-width: 900px) {
+            #search-row {
+                flex-direction: column;
+                padding: 10px;
+                gap: 8px;
+            }
+            body { padding-top: 150px; } 
+            #search-input { width: 90vw; }
         }
 
         /* External Links */
@@ -103,8 +120,9 @@
 
         /* Search Inputs */
         #search-input {
-            width: 400px; /* Fixed width for stability */
-            padding: 4px 10px;
+            width: 400px;
+            max-width: 100%; 
+            padding: 6px 10px;
             font-size: 14px;
             background-color: #151515;
             border: 1px solid #444;
@@ -118,7 +136,7 @@
             border: 1px solid #444;
             color: #888;
             font-size: 11px;
-            padding: 4px 10px;
+            padding: 6px 10px;
             cursor: pointer;
             text-transform: uppercase;
             border-radius: 2px;
@@ -130,11 +148,10 @@
         .search-options input { margin-right: 5px; cursor: pointer; }
         .search-options label { cursor: pointer; }
 
-        /* Status & Version */
         #status-msg { font-size: 11px; color: #555; cursor: help; white-space: nowrap; }
         .version-tag { font-size: 11px; color: #666; font-family: monospace; border: 1px solid #333; padding: 1px 4px; border-radius: 3px;}
 
-        /* Tooltip Icon */
+        /* Tooltip */
         .info-icon {
             color: #888;
             font-size: 12px;
@@ -153,7 +170,7 @@
             content: attr(data-tooltip);
             position: absolute;
             top: 25px;
-            right: -50px; /* Adjusted since it's now in the middle */
+            right: -50px; 
             width: 250px;
             background-color: #1a1a1a;
             color: #ccc;
@@ -174,7 +191,7 @@
             flex-wrap: wrap;
             justify-content: center;
             gap: 3px;
-            padding: 4px 10px;
+            padding: 6px 10px;
             background-color: #101010;
             border-top: 1px solid #222;
         }
@@ -183,13 +200,14 @@
             background: #1e1e1e;
             border: 1px solid #333;
             color: #888;
-            padding: 2px 8px;
+            padding: 4px 8px;
             cursor: pointer;
             font-size: 11px;
             text-transform: uppercase;
             text-decoration: none;
             transition: 0.2s;
             border-radius: 2px;
+            white-space: nowrap;
         }
         .nav-btn:hover { background-color: #333; color: #fff; border-color: #555; }
 
@@ -197,15 +215,15 @@
         #main-content {
             max-width: 1500px; 
             margin: 0 auto;
-            padding: 15px;
+            padding: 5px; 
             flex: 1; 
             width: 98%;
         }
 
         .section-header {
-            margin-top: 50px;
-            padding-top: 100px;
-            margin-bottom: 15px;
+            margin-top: 5px; 
+            padding-top: 150px; 
+            margin-bottom: 5px;
             border-bottom: 1px solid #444;
             color: var(--diablo-gold);
             font-size: 1.5em;
@@ -213,13 +231,15 @@
             letter-spacing: 1px;
             text-shadow: 1px 1px 2px #000;
         }
-        .anchor-offset { position: absolute; margin-top: -100px; }
+        .anchor-offset { position: absolute; margin-top: -150px; }
+
+        .section-hidden { display: none; }
 
         /* --- Tables --- */
         table {
             border-collapse: collapse;
             width: 100%;
-            margin-bottom: 15px; 
+            margin-bottom: 5px; 
             background-color: transparent;
             table-layout: auto; 
         }
@@ -243,17 +263,26 @@
 
         tr {
             background-color: #0b0b0b; 
+            transition: background-color 0.1s;
         }
         tr:hover {
             background-color: var(--highlight-bg) !important;
         }
 
-        /* REQ: Centered content for Gems and Cube sections */
+        /* Text Match Highlight */
+        .search-highlight {
+            background-color: var(--text-highlight-bg);
+            color: var(--text-highlight-color);
+            border: var(--text-highlight-border);
+            border-radius: 2px;
+            padding: 0 2px;
+            box-shadow: 0 0 5px rgba(0, 255, 255, 0.3);
+        }
+
         #gems td, #gems th, #cube td, #cube th {
             text-align: center !important;
         }
 
-        /* REQ: Cube Links styling */
         #cube a {
             color: var(--diablo-gold);
             font-weight: bold;
@@ -264,15 +293,12 @@
             color: #fff;
         }
 
-        /* Gold Colored Base Items */
         .base-item-text { color: var(--diablo-gold) !important; font-weight: bold; }
 
-        /* Tier Strips */
         tr.tier-normal td:first-child { border-left: 6px solid var(--strip-normal) !important; }
         tr.tier-except td:first-child { border-left: 6px solid var(--strip-except) !important; }
         tr.tier-elite td:first-child { border-left: 6px solid var(--strip-elite) !important; }
 
-        /* Color Fixes */
         font[color="#0000ff"], font[color="blue"], span[style*="blue"], b[style*="blue"] { color: #6699ff !important; }
         font[color="#800000"], font[color="red"] { color: #ff6666 !important; }
         font[color="#908020"], font[color="gold"], b[style*="gold"] { color: #d4af37 !important; }
@@ -288,7 +314,6 @@
         .success { color: #55ff55; }
         .error { color: #ff5555; }
 
-        /* Footer */
         #page-footer {
             text-align: center;
             padding: 20px;
@@ -306,10 +331,8 @@
     <div id="header-area">
         <div id="search-row">
             
-            <!-- LEFT GROUP -->
             <div class="header-group">
-                <!-- REQ: Renamed to ESR Tools -->
-                <a href="https://https://doubleeclipse.github.io/esr-tools/" class="ext-link" target="_blank">
+                <a href="https://doubleeclipse.github.io/esr-tools" class="ext-link" target="_blank">
                     ESR Tools <span class="ext-arrow">↗</span>
                 </a>
                 <div class="brand">
@@ -318,7 +341,6 @@
                 </div>
             </div>
 
-            <!-- CENTER GROUP -->
             <div class="header-group">
                 <input type="text" id="search-input" placeholder="Search... (Alt+Z to Select)">
                 <button id="clear-btn" title="Alt+R">Clear (Alt+R)</button>
@@ -329,20 +351,23 @@
                 </div>
             </div>
 
-            <!-- RIGHT GROUP -->
             <div class="header-group">
                 <span id="status-msg">Init...</span>
-                <span class="version-tag">Alpha v0.13</span>
-                
-                <div class="info-icon" data-tooltip="-- HOW TO --
-Type in the search bar to filter items instantly.
-Hotkeys: Alt+Z (Focus), Alt+R (Clear).
+                <span class="version-tag">Alpha v0.13e</span>
+                <div class="info-icon" data-tooltip="-- DISCLAIMER --
+This tool may no longer be actively updated, relevant or even work. In doubt, get your info about ESR items from the Official ESR site or Discord Server.
+-- HOW DOES THIS TOOL WORK? --
+The tool takes data live from the Official ESR site, multiple pages. Please wait until all the pages are loaded and you see a 'Ready' sign.
+-- HOW TO --
+• Type in the search bar to filter items instantly. 2+ character searches.
+• Please enter search phrase and then check 'Oskill Hunter' if you use it.
 
 -- KNOWN ISSUES --
-• Runeword/Gemword checkboxes are currently visual only and do not filter rows.
-• Column widths may vary slightly between sections.">?</div>
+• 'Oskill Hunter' check may remove results, uncheck and check it again to get them to show.
+• Column widths may vary slightly between sections.
+• Runeword/Gemword checkboxes are visual only.
+• [Links] in the Cube Recipes section and Base Item links do not work.">?</div>
 
-                <!-- REQ: Renamed to ESR Off Site -->
                 <a href="https://celestialrayone.github.io/Eastern_Sun_Resurrected/docs/changelogs.html" class="ext-link" target="_blank">
                     ESR Off Site <span class="ext-arrow">↗</span>
                 </a>
@@ -387,6 +412,8 @@ Hotkeys: Alt+Z (Focus), Alt+R (Clear).
     const strictModeCheckbox = document.getElementById('strict-mode');
     const statusMsg = document.getElementById('status-msg');
     let loadedFiles = [];
+    let debounceTimer;
+    let highlightedCells = [];
 
     function initNav() {
         navRow.innerHTML = '';
@@ -428,6 +455,7 @@ Hotkeys: Alt+Z (Focus), Alt+R (Clear).
 
         const sectionWrapper = document.createElement('div');
         sectionWrapper.id = source.id;
+        sectionWrapper.className = 'section-container';
 
         const anchor = document.createElement('div');
         anchor.className = 'anchor-offset';
@@ -441,7 +469,6 @@ Hotkeys: Alt+Z (Focus), Alt+R (Clear).
 
         const tables = doc.querySelectorAll('table');
         tables.forEach(table => {
-            // REQ: Skip junk filtering for Cube to restore Nav Strips
             if (isJunkTable(table, source.id)) return;
 
             fixImages(table, source.url);
@@ -449,12 +476,14 @@ Hotkeys: Alt+Z (Focus), Alt+R (Clear).
             tagBaseItems(table);
             identifyAndTagTiers(table);
             
-            if (source.id === "u_mythicals") {
-                fixMythicalBases(table);
-            }
+            if (source.id === "u_mythicals") fixMythicalBases(table);
+            if (source.id === "cube") fixCubeLinks(table);
+            
+            fixBaseItemLinks(table);
 
             applyUnifiedFormatting(table, source.keepColors);
             identifyHeaderRows(table);
+            saveOriginalHTML(table);
 
             sectionWrapper.appendChild(table);
         });
@@ -462,18 +491,86 @@ Hotkeys: Alt+Z (Focus), Alt+R (Clear).
         container.appendChild(sectionWrapper);
     }
 
-    // REQ: Update junk filter to ignore 'cube' id
-    function isJunkTable(table, sourceId) {
-        if (sourceId === 'cube') return false; // Always allow tables in Cube
+    function saveOriginalHTML(table) {
+        table.querySelectorAll('td').forEach(td => {
+            td.dataset.original = td.innerHTML;
+        });
+    }
 
+    function isJunkTable(table, sourceId) {
         const txt = table.textContent || "";
+        
+        if (txt.includes("[Changelogs]") && txt.includes("[Armor]")) return true;
+
+        if (sourceId === 'cube') return false; 
+
         const junkKeywords = ["Changelogs", "Uni Armor", "Uni Weapons", "Uni Other", "Uni Mythicals", "Mercenary and Oskill"];
         let matchCount = 0;
         junkKeywords.forEach(k => { if(txt.includes(k)) matchCount++; });
         if (matchCount >= 3) return true;
         if (txt.includes("[General]") && txt.includes("[Grand Charms]") && txt.includes("[Jewels]")) return true;
+        
         if (txt.includes("[[Changelogs]]") || txt.includes("[[Armor]]")) return true;
         return false;
+    }
+
+    function fixCubeLinks(table) {
+        const links = table.querySelectorAll('a');
+        links.forEach(link => {
+            const href = link.getAttribute('href');
+            if (href && href.includes('#')) {
+                const hash = href.substring(href.indexOf('#'));
+                link.setAttribute('href', hash);
+                link.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const targetName = hash.substring(1);
+                    const target = document.querySelector(`a[name="${targetName}"], #${targetName}`);
+                    if (target) {
+                        const headerOffset = document.getElementById('header-area').offsetHeight + 20;
+                        const elementPosition = target.getBoundingClientRect().top;
+                        const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+                        window.scrollTo({ top: offsetPosition, behavior: "smooth" });
+                    }
+                });
+            }
+        });
+    }
+
+    function fixBaseItemLinks(table) {
+        const links = table.querySelectorAll('a');
+        links.forEach(link => {
+            const href = link.getAttribute('href');
+            if (!href) return;
+
+            let targetSection = null;
+            let anchorName = null;
+
+            if (href.includes('armors.htm') && href.includes('#')) {
+                targetSection = 'base_armors';
+                anchorName = href.split('#')[1];
+            } else if (href.includes('weapons.htm') && href.includes('#')) {
+                targetSection = 'base_weapons';
+                anchorName = href.split('#')[1];
+            }
+
+            if (targetSection && anchorName) {
+                link.setAttribute('href', `#${targetSection}`); 
+                link.style.cursor = 'pointer';
+                link.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const container = document.getElementById(targetSection);
+                    if (!container) return;
+
+                    const target = container.querySelector(`a[name="${anchorName}"]`);
+                    if (target) {
+                        const headerOffset = document.getElementById('header-area').offsetHeight + 20;
+                        const elementPosition = target.getBoundingClientRect().top;
+                        const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+                        window.scrollTo({ top: offsetPosition, behavior: "smooth" });
+                    }
+                });
+            }
+        });
     }
 
     function fixImages(table, baseUrl) {
@@ -575,12 +672,14 @@ Hotkeys: Alt+Z (Focus), Alt+R (Clear).
             if (rowText.includes("name") && rowText.includes("stats") && rowText.includes("properties")) {
                 rows[i].classList.add('header-row');
             }
+            // REQ: FIX FOR AUTOLYCUS - REMOVE WIDTH CHECK
+            // We do NOT use width check anymore to identify headers, as item rows can have widths.
             const cells = rows[i].cells;
             for (let c of cells) {
-                if (c.hasAttribute('width') || c.style.width) {
-                    rows[i].classList.add('header-row');
-                    break; 
-                }
+               if (c.tagName === 'TH') { // Only trust TH tags if Name/Stats check failed
+                   rows[i].classList.add('header-row');
+                   break;
+               }
             }
         }
     }
@@ -607,53 +706,109 @@ Hotkeys: Alt+Z (Focus), Alt+R (Clear).
         searchInput.focus();
     }
 
+    function onSearchInput() {
+        clearTimeout(debounceTimer);
+        debounceTimer = setTimeout(performSearch, 300); // 300ms Debounce
+    }
+
     function performSearch() {
         const term = searchInput.value.toLowerCase().trim();
         const strict = strictModeCheckbox.checked;
-        const tables = document.querySelectorAll('#main-content table');
+        const containers = document.querySelectorAll('.section-container');
         
-        if (!term) {
+        // Restore
+        highlightedCells.forEach(td => {
+            if (td.dataset.original) {
+                td.innerHTML = td.dataset.original;
+            }
+        });
+        highlightedCells = [];
+
+        // REQ: Min Length check
+        if (!term || term.length < 2) {
             document.querySelectorAll('.hidden').forEach(el => el.classList.remove('hidden'));
+            document.querySelectorAll('.section-hidden').forEach(el => el.classList.remove('section-hidden'));
             return;
         }
 
-        tables.forEach(table => {
-            let tableVisible = false;
-            const rows = table.querySelectorAll('tr');
-            
-            rows.forEach(row => {
-                if (row.classList.contains('header-row') || row.querySelector('th')) {
-                    row.classList.remove('hidden'); 
-                    return;
-                }
-                
-                const rowText = row.innerText; 
-                let match = false;
-                if (strict) {
-                    const lines = rowText.split(/\n/);
-                    for (let line of lines) {
-                        if (new RegExp(`\\b${escapeRegExp(term)}$`, 'i').test(line.trim())) {
-                            match = true; break;
-                        }
-                    }
-                } else {
-                    if (rowText.toLowerCase().includes(term)) match = true;
-                }
+        containers.forEach(container => {
+            let sectionVisible = false;
+            const tables = container.querySelectorAll('table');
 
-                if (match) {
-                    row.classList.remove('hidden');
-                    tableVisible = true;
-                } else {
-                    row.classList.add('hidden');
-                }
+            tables.forEach(table => {
+                let tableVisible = false;
+                const rows = table.querySelectorAll('tr');
+                
+                rows.forEach(row => {
+                    const isHeader = row.classList.contains('header-row') || row.querySelector('th');
+                    if (isHeader) {
+                        row.classList.remove('hidden'); 
+                        return;
+                    }
+
+                    const rowText = row.innerText; 
+                    let match = false;
+
+                    if (strict) {
+                        const lines = rowText.split(/\n/);
+                        for (let line of lines) {
+                            if (new RegExp(`\\b${escapeRegExp(term)}$`, 'i').test(line.trim())) {
+                                match = true; break;
+                            }
+                        }
+                    } else {
+                        if (rowText.toLowerCase().includes(term)) match = true;
+                    }
+
+                    if (match) {
+                        row.classList.remove('hidden');
+                        tableVisible = true;
+                        sectionVisible = true;
+                        highlightRowText(row, term);
+                    } else {
+                        row.classList.add('hidden');
+                    }
+                });
+
+                if (tableVisible) table.classList.remove('hidden');
+                else table.classList.add('hidden');
             });
 
-            if (tableVisible) table.classList.remove('hidden');
-            else table.classList.add('hidden');
+            if (sectionVisible) container.classList.remove('section-hidden');
+            else container.classList.add('section-hidden');
         });
     }
 
-    searchInput.addEventListener('input', performSearch);
+    function highlightRowText(row, term) {
+        const regex = new RegExp(`(${escapeRegExp(term)})`, 'gi');
+        const cells = row.querySelectorAll('td');
+        
+        cells.forEach(td => {
+            if (!td.dataset.original) {
+                td.dataset.original = td.innerHTML;
+            }
+            if (td.textContent.toLowerCase().includes(term)) {
+                 const walker = document.createTreeWalker(td, NodeFilter.SHOW_TEXT, null, false);
+                 const nodesToReplace = [];
+                 let node;
+                 while(node = walker.nextNode()) {
+                     if (node.nodeValue.match(regex)) {
+                         nodesToReplace.push(node);
+                     }
+                 }
+                 if (nodesToReplace.length > 0) {
+                     nodesToReplace.forEach(node => {
+                         const span = document.createElement('span');
+                         span.innerHTML = node.nodeValue.replace(regex, '<span class="search-highlight">$1</span>');
+                         node.parentNode.replaceChild(span, node);
+                     });
+                     highlightedCells.push(td);
+                 }
+            }
+        });
+    }
+
+    searchInput.addEventListener('input', onSearchInput);
     strictModeCheckbox.addEventListener('change', performSearch);
     clearBtn.addEventListener('click', clearSearch);
 
