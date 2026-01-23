@@ -332,7 +332,7 @@
         <div id="search-row">
             
             <div class="header-group">
-                <a href="https://doubleeclipse.github.io/esr-tools" class="ext-link" target="_blank">
+                <a href="https://doubleeclipse.github.io/esr-tools/" class="ext-link" target="_blank">
                     ESR Tools <span class="ext-arrow">↗</span>
                 </a>
                 <div class="brand">
@@ -345,7 +345,7 @@
                 <input type="text" id="search-input" placeholder="Search... (Alt+Z to Select)">
                 <button id="clear-btn" title="Alt+R">Clear (Alt+R)</button>
                 <div class="search-options">
-                    <label title='Only matches if the term is at the very end of a line/stat. Example: "Teleport" matches "+1 to Teleport", but ignores "Teleport (Sorceress Only)", "Teleport Charges", etc.'>
+                    <label title='Only matches if the term is at the very end of a line/stat.'>
                         <input type="checkbox" id="strict-mode"> Oskill Hunter
                     </label>
                 </div>
@@ -353,19 +353,22 @@
 
             <div class="header-group">
                 <span id="status-msg">Init...</span>
-                <span class="version-tag">Alpha v0.13e</span>
+                <span class="version-tag">Alpha v0.14c</span>
                 <div class="info-icon" data-tooltip="-- DISCLAIMER --
 This tool may no longer be actively updated, relevant or even work. In doubt, get your info about ESR items from the Official ESR site or Discord Server.
+
 -- HOW DOES THIS TOOL WORK? --
 The tool takes data live from the Official ESR site, multiple pages. Please wait until all the pages are loaded and you see a 'Ready' sign.
+
 -- HOW TO --
 • Type in the search bar to filter items instantly. 2+ character searches.
 • Please enter search phrase and then check 'Oskill Hunter' if you use it.
 
 -- KNOWN ISSUES --
 • 'Oskill Hunter' check may remove results, uncheck and check it again to get them to show.
+• 'Oskill Hunter' 'catches' the search term in item names too (e.g 'Judgement' search).
 • Column widths may vary slightly between sections.
-• Runeword/Gemword checkboxes are visual only.
+• Runeword/Gemword checkboxes are visual only, they don't actually work.
 • [Links] in the Cube Recipes section and Base Item links do not work.">?</div>
 
                 <a href="https://celestialrayone.github.io/Eastern_Sun_Resurrected/docs/changelogs.html" class="ext-link" target="_blank">
@@ -402,7 +405,12 @@ The tool takes data live from the Official ESR site, multiple pages. Please wait
         { id: "prefixes", name: "Prefixes", url: "https://celestialrayone.github.io/Eastern_Sun_Resurrected/docs/prefixes.htm" },
         { id: "suffixes", name: "Suffixes", url: "https://celestialrayone.github.io/Eastern_Sun_Resurrected/docs/suffixes.htm" },
         { id: "gems", name: "Gems/Runes", url: "https://celestialrayone.github.io/Eastern_Sun_Resurrected/docs/gems.htm", keepColors: true },
-        { id: "cube", name: "Cube Recipes", url: "https://celestialrayone.github.io/Eastern_Sun_Resurrected/docs/Eastern%20Sun%20Resurrected%20Cube%20Recipes.html", keepColors: true }
+        { id: "cube", name: "Cube Recipes", url: "https://celestialrayone.github.io/Eastern_Sun_Resurrected/docs/Eastern%20Sun%20Resurrected%20Cube%20Recipes.html", keepColors: true },
+        // New Sites
+        { id: "corruptions", name: "Corruptions", url: "https://celestialrayone.github.io/Eastern_Sun_Resurrected/docs/corruptions.htm" },
+        { id: "anointments", name: "Anointments", url: "https://celestialrayone.github.io/Eastern_Sun_Resurrected/docs/anointments.htm" },
+        { id: "vessel", name: "Vessel of Souls", url: "https://celestialrayone.github.io/Eastern_Sun_Resurrected/docs/vessel_of_souls.htm" },
+        { id: "ledger", name: "Kill Ledger", url: "https://celestialrayone.github.io/Eastern_Sun_Resurrected/docs/kill_ledger.htm" }
     ];
 
     const container = document.getElementById('main-content');
@@ -500,6 +508,7 @@ The tool takes data live from the Official ESR site, multiple pages. Please wait
     function isJunkTable(table, sourceId) {
         const txt = table.textContent || "";
         
+        // Remove standard footer strip
         if (txt.includes("[Changelogs]") && txt.includes("[Armor]")) return true;
 
         if (sourceId === 'cube') return false; 
@@ -664,19 +673,28 @@ The tool takes data live from the Official ESR site, multiple pages. Please wait
         });
     }
 
+    // REQ: Fixed Logic for Sets/Autolycus
     function identifyHeaderRows(table) {
         const rows = table.querySelectorAll('tr');
-        if (rows.length > 0) rows[0].classList.add('header-row');
-        for (let i = 0; i < Math.min(rows.length, 3); i++) {
+        // REMOVED: blind rows[0] check.
+        // Only mark specific headers:
+        for (let i = 0; i < Math.min(rows.length, 5); i++) {
             const rowText = rows[i].innerText.toLowerCase();
-            if (rowText.includes("name") && rowText.includes("stats") && rowText.includes("properties")) {
-                rows[i].classList.add('header-row');
-            }
-            // REQ: FIX FOR AUTOLYCUS - REMOVE WIDTH CHECK
-            // We do NOT use width check anymore to identify headers, as item rows can have widths.
             const cells = rows[i].cells;
+            
+            // Check Keywords
+            if (rowText.includes("name") && (rowText.includes("stats") || rowText.includes("properties") || rowText.includes("bonus"))) {
+                rows[i].classList.add('header-row');
+                continue;
+            }
+            if (rowText.includes("socket") && rowText.includes("item") && rowText.includes("result")) { // Cube headers
+                rows[i].classList.add('header-row');
+                continue;
+            }
+
+            // Check for explicit TH tags (often used for real headers)
             for (let c of cells) {
-               if (c.tagName === 'TH') { // Only trust TH tags if Name/Stats check failed
+               if (c.tagName === 'TH') {
                    rows[i].classList.add('header-row');
                    break;
                }
@@ -724,7 +742,7 @@ The tool takes data live from the Official ESR site, multiple pages. Please wait
         });
         highlightedCells = [];
 
-        // REQ: Min Length check
+        // Min Length Check
         if (!term || term.length < 2) {
             document.querySelectorAll('.hidden').forEach(el => el.classList.remove('hidden'));
             document.querySelectorAll('.section-hidden').forEach(el => el.classList.remove('section-hidden'));
@@ -740,7 +758,7 @@ The tool takes data live from the Official ESR site, multiple pages. Please wait
                 const rows = table.querySelectorAll('tr');
                 
                 rows.forEach(row => {
-                    const isHeader = row.classList.contains('header-row') || row.querySelector('th');
+                    const isHeader = row.classList.contains('header-row'); // Only trust strictly identified headers
                     if (isHeader) {
                         row.classList.remove('hidden'); 
                         return;
