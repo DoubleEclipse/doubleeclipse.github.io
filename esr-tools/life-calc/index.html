@@ -1,0 +1,709 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ESR Character Life Calculator</title>
+<!-- Thematic Google Fonts -->
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=Quicksand:wght@400;600&display=swap" rel="stylesheet">
+<style>
+/* ===== Theme & Layout ===== */
+:root {
+    --bg: #090c10;
+    --panel: #12171f;
+    --text: #c9d1d9;
+    --accent: #d4af37; /* Gold/Yellow Diablo color */
+    --accent-dim: #997b24;
+    --border: rgba(212, 175, 55, 0.2);
+    --input-bg: #1c232b;
+    --input-border: #30363d;
+    --red: #ff4d4d;
+}
+
+body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Quicksand', sans-serif;
+    margin: 0;
+    padding: 20px;
+}
+
+/* ===== Top Navigation ===== */
+.top-nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    max-width: 900px;
+    margin: 0 auto 20px auto;
+    font-size: 14px;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 10px;
+}
+
+.nav-link {
+    text-decoration: none;
+    color: var(--accent);
+    font-weight: 600;
+    transition: color 0.2s;
+}
+
+.nav-link:hover {
+    color: #fff;
+    text-shadow: 0 0 5px var(--accent);
+}
+
+/* ===== Header ===== */
+header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;      
+    justify-content: center;  
+    gap: 8px;                
+    margin-bottom: 30px;
+}
+
+header img {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+}
+
+h1 {
+    font-family: 'Cinzel', serif;
+    font-weight: 700;
+    font-size: 1.8rem; /* Slightly smaller to fit everything */
+    color: var(--accent);
+    margin: 0;
+    text-align: center;
+    letter-spacing: 1px;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+}
+
+.version-container {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.9rem;
+    color: var(--accent-dim);
+}
+
+/* Disclaimer Tooltip */
+.disclaimer-icon {
+    cursor: help;
+    color: var(--red);
+    font-weight: bold;
+    position: relative;
+    font-size: 14px;
+}
+
+.disclaimer-icon:hover::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    top: 25px;
+    left: 50%; /* Center relative to icon */
+    transform: translateX(-50%);
+    background: #12171f;
+    border: 1px solid var(--red);
+    padding: 12px;
+    width: 250px;
+    font-size: 12px;
+    border-radius: 4px;
+    z-index: 100;
+    color: #fff;
+    line-height: 1.4;
+    white-space: pre-wrap;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.9);
+}
+
+/* Grid layout */
+.container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    max-width: 900px;
+    margin: 0 auto;
+    gap: 24px;
+}
+
+/* Panels */
+.panel {
+    background: var(--panel);
+    border-radius: 8px;
+    padding: 20px;
+    border: 1px solid var(--border);
+    box-shadow: inset 0 0 15px rgba(0,0,0,0.5);
+}
+
+.panel-title {
+    font-family: 'Cinzel', serif;
+    color: var(--accent);
+    font-size: 1.1rem;
+    margin-bottom: 15px;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 8px;
+    display: block;
+}
+
+label {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 13px;
+    margin-top: 14px;
+    margin-bottom: 5px;
+    font-weight: 600;
+}
+
+input, select {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 10px;
+    border-radius: 4px;
+    border: 1px solid var(--input-border);
+    background: var(--input-bg);
+    color: #fff;
+    font-size: 14px;
+    transition: border-color 0.2s;
+}
+
+input:focus {
+    outline: none;
+    border-color: var(--accent);
+}
+
+input.invalid { border-color: var(--red); }
+
+/* Formula Styling */
+.formula-box {
+    background: #0d1117;
+    border-radius: 6px;
+    padding: 12px;
+    border: 1px solid rgba(255,255,255,0.05);
+    font-size: 13px;
+    line-height: 1.6;
+}
+
+.calc-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 3px 0;
+}
+
+.calc-row.total-row {
+    border-top: 1px solid #333;
+    margin-top: 8px;
+    padding-top: 8px;
+    color: var(--accent);
+    font-weight: bold;
+}
+
+.subtle { color: #8b949e; font-size: 12px; }
+
+/* Life Orb Visuals */
+.total-life-box {
+    text-align: center;
+    margin-top: 20px;
+    background: radial-gradient(circle, rgba(215, 90, 90, 0.1) 0%, transparent 70%);
+}
+
+#lifeOrb {
+    width: 220px;
+    height: 220px;
+    background: url('https://diablo2.wiki.fextralife.com/file/Diablo-2/health_globe_3_diablo2_resurrected_stats_wiki_guide.png') no-repeat center/contain;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+}
+
+#lifeOrbValue {
+    font-size: 34px;
+    font-weight: 800;
+    color: #fff;
+    text-shadow: 0 0 10px #000, 0 0 5px #000, 2px 2px 2px #000;
+    z-index: 2;
+}
+
+/* Share Button */
+.btn-share {
+    margin-top: 20px;
+    background: var(--accent-dim);
+    border: none;
+    color: #000;
+    padding: 10px 15px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-family: 'Cinzel', serif;
+    font-weight: bold;
+    width: 100%;
+    transition: background 0.2s;
+}
+
+.btn-share:hover { background: var(--accent); }
+
+/* ===== Bottom Info Panel (Expandable) ===== */
+.info-panel-container {
+    grid-column: span 2; /* Spans both columns */
+    margin-top: 10px;
+}
+
+.info-toggle {
+    background: #1c232b;
+    border: 1px solid var(--border);
+    color: var(--accent);
+    width: 100%;
+    padding: 12px;
+    text-align: left;
+    cursor: pointer;
+    border-radius: 6px;
+    font-family: 'Cinzel', serif;
+    font-weight: bold;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.info-toggle:hover {
+    background: var(--panel);
+}
+
+.info-toggle::after {
+    content: '+';
+    font-weight: bold;
+    font-size: 18px;
+}
+
+.info-toggle.active::after {
+    content: '-';
+}
+
+.info-content {
+    display: none; /* Hidden by default */
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-top: none;
+    border-radius: 0 0 6px 6px;
+    padding: 20px;
+    font-size: 13px;
+    color: #aebbc9;
+}
+
+.info-content.show {
+    display: block;
+}
+
+.info-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 20px;
+}
+
+.info-table th, .info-table td {
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+    padding: 8px;
+    text-align: left;
+}
+
+.info-table th {
+    color: var(--accent);
+    font-weight: 600;
+}
+
+/* Responsive adjustments */
+@media(max-width:850px){
+    .container { grid-template-columns: 1fr; }
+    .panel-results { grid-row: 1; } /* Result shows at top on mobile */
+    .info-panel-container { grid-column: span 1; } /* Reset span for mobile */
+    header h1 { font-size: 1.4rem; }
+}
+
+/* Display Field (Soft Vit) */
+.displayField {
+    padding: 10px;
+    border-radius: 4px;
+    background: rgba(0,0,0,0.3);
+    border: 1px dashed var(--input-border);
+    color: #8b949e;
+    font-size: 14px;
+}
+
+/* Tooltip Fixed */
+.tooltip { 
+    color: var(--accent); 
+    cursor: help; 
+    font-style: italic; 
+    margin-left: 5px; 
+    position: relative; /* Fixed: allows absolute child to position correctly */
+    display: inline-block;
+}
+
+.tooltip:hover::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    top: 25px;
+    right: 0; /* Fixed: Anchors right edge, expands to left */
+    width: 240px;
+    background: #21262d;
+    border: 1px solid var(--accent);
+    padding: 10px;
+    font-size: 12px;
+    border-radius: 4px;
+    z-index: 100;
+    color: #fff;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.9);
+}
+
+footer {
+    text-align: center;
+    color: var(--accent);
+    font-family: 'Roboto', serif;
+    font-size: 11px;
+    margin-top: 30px;
+    opacity: 0.9;
+}
+</style>
+</head>
+<body>
+
+<!-- Top Navigation -->
+<div class="top-nav">
+    <a href="https://doubleeclipse.github.io/esr-tools/" class="nav-link">&lt; ESR Tools</a>
+    <a href="https://tsw.vn.cz/esr/" target="_blank" class="nav-link">ESR Off Site &gt;</a>
+</div>
+
+<header>
+    <img src="https://celestialrayone.github.io/Eastern_Sun_Resurrected/docs/images/esricon.png" alt="ESR Icon">
+    <h1>ESR Character Life Calculator</h1>
+    <div class="version-container">
+        <span>ESR version: 3.9.15. Tool version: 0.23 Alpha</span>
+        <span class="disclaimer-icon" data-tooltip="-- DISCLAIMER --
+This tool may no longer be actively updated, relevant or even work. In doubt, use the Official ESR site or visit the Discord Server.">(?)</span>
+    </div>
+</header>
+
+<div class="container">
+
+    <!-- Left Panel: Inputs -->
+    <div class="panel">
+        <span class="panel-title">Character Attributes</span>
+
+        <label>Character Class<span class="tooltip" data-tooltip="Hotkeys: (A)mazon, (B)arbarian, (D)ruid, Assass(i)n, (N)ecromancer, (P)aladin, (S)orceress">(?)</span></label>
+        <select id="classSelect">
+            <option value="Amazon">Amazon</option>
+            <option value="Assassin">Assassin</option>
+            <option value="Barbarian">Barbarian</option>
+            <option value="Druid">Druid</option>
+            <option value="Necromancer">Necromancer</option>
+            <option value="Paladin">Paladin</option>
+            <option value="Sorceress">Sorceress</option>
+        </select>
+
+        <label>Character Level (1 to 110)</label>
+        <input type="number" id="clvl" min="1" max="110" value="1">
+
+        <label>Hard Vitality Points
+        <span class="tooltip" data-tooltip="'Base Value' in your Character Screen">(?)</span></label>
+        <input type="number" id="hardVit">
+
+            <span class="panel-title" style="margin-top:25px;">Gear & Skills</span>
+
+        <label>Soft Vitality Points</label>
+        <div id="softVit" class="displayField">0</div>
+
+        <label>Total Vitality Points (Hard + Soft)</label>
+        <input type="number" id="totalVit">
+
+        <label>+to Life from gear & skills</label>
+        <input type="number" id="flatLife">
+
+        <label>+to Life (Based on Char Level) from Gear & Skills
+        <span class="tooltip" data-tooltip="Fill with Life based on clvl, not with the ingame tooltip amount, e.g an item with '+168 life (based on clvl)' on a 56 lvl char = 168/56 = 3. Input '3' in the field.">(?)</span></label>
+        <input type="number" id="flatLifePerCL">
+
+        <label>Increase Maximum Life +% from Gear & Skills
+        <span class="tooltip" data-tooltip="+% Max Life from gear and from skills (Battle Orders, Spirit of Nature, Vigor, etc) are treated the same way">(?)</span></label>
+        <input type="number" id="pctLife">
+
+        <label>+Life from Act III Quest Reward (Alkor)</label>
+        <select id="questLife">
+            <option value="0">0 (not completed on any difficulty)</option>
+            <option value="20">20 (Completed on I difficulty)</option>
+            <option value="40">40 (Completed on II difficulties)</option>
+            <option value="60">60 (Completed on III difficulties)</option>
+        </select>
+    </div>
+
+    <!-- Results -->
+    <div class="panel panel-results">
+        <span class="panel-title">Calculation Breakdown</span>
+        <div class="formula-box" id="formulaContainer">
+            <!-- Dynamic rows inserted here -->
+        </div>
+
+        <div class="total-life-box">
+            <div id="lifeOrb">
+                <span id="lifeOrbValue">0</span>
+            </div>
+        </div>
+
+        <button class="btn-share" onclick="copyShareLink()">Copy Build Link</button>
+    </div>
+
+    <!-- Expandable Info Panel -->
+    <div class="info-panel-container">
+        <button class="info-toggle" onclick="toggleInfo(this)">Game Data & Formulas</button>
+        <div class="info-content">
+            <p style="color:var(--accent); margin-bottom:15px; font-weight:bold;">Character Class Data</p>
+            <table class="info-table">
+                <thead>
+                    <tr>
+                        <th>Class</th>
+                        <th>Base Vitality</th>
+                        <th>Life Per Level</th>
+                        <th>Life Per Vit</th>
+                    </tr>
+                </thead>
+				<tbody id="classTableBody">
+				<!-- Rows will be generated by JavaScript -->
+				</tbody>
+				 
+            </table>
+
+            <p style="color:var(--accent); margin-bottom:10px; font-weight:bold;">Calculation Logic</p>
+            <div style="background:#0d1117; padding:15px; border-radius:4px; font-family:monospace; line-height:1.5;">
+                <strong>1. Base Life</strong> = 80 + (Hard Vit * 1) + ((Lvl-1) * LifePerLvl) + QuestRewards + FlatLife + (FlatPerLvl * Lvl) + (Soft Vit * 1 / 2)<br><br>
+                <strong>2. Apply % Life</strong> = floor( Base Life * (100 + %Bonus) / 100 )<br><br>
+                <strong>3. Total Life</strong> = Result of step 2 + (Soft Vit * 1 / 2)
+            </div>
+            <p style="font-size:12px; margin-top:10px; font-style:italic;">*Note: Life formula confirmed by mod creator CelestialRayOne. Character class data taken from the mod's files.</p>
+        </div>
+    </div>
+
+</div>
+
+<footer>Tool vibe coded by DoubleEclipse with ChatGPT and Google AI Studio</footer>
+
+<script>
+/* ============================
+   VARIABLES & CLASS DATA
+============================ */
+const LIFE_AT_LVL1 = 80;            
+const LIFE_PER_VIT = 1;             
+const CLASSES = {
+    "Amazon":      { startingVit: 20, lifePerLevel: 8 },
+    "Assassin":    { startingVit: 25, lifePerLevel: 7 },
+    "Barbarian":   { startingVit: 25, lifePerLevel: 9 },
+    "Druid":       { startingVit: 25, lifePerLevel: 5 },
+    "Necromancer": { startingVit: 20, lifePerLevel: 6 },
+    "Paladin":     { startingVit: 25, lifePerLevel: 8 },
+    "Sorceress":   { startingVit: 15, lifePerLevel: 3 }
+};
+
+/* ============================
+   ELEMENTS
+============================ */
+const elClass = document.getElementById("classSelect");
+const elCLvl = document.getElementById("clvl");
+const eltotalVit = document.getElementById("totalVit"); 
+const elhardVit = document.getElementById("hardVit"); 
+const elsoftVit = document.getElementById("softVit"); 
+const elFlatLife = document.getElementById("flatLife");
+const elFlatLifePer = document.getElementById("flatLifePerCL");
+const elPctLife = document.getElementById("pctLife");
+const elQuestLife = document.getElementById("questLife");
+const formulaContainer = document.getElementById("formulaContainer");
+const lifeOrbValue = document.getElementById("lifeOrbValue");
+
+/* ============================
+   HELPER FUNCTIONS
+============================ */
+function clampNumber(val,min,max){
+    let n = Number(val)||0;
+    if(min!==undefined) n = Math.max(min,n);
+    if(max!==undefined) n = Math.min(max,n);
+    return n;
+}
+
+function validateField(el,min,max){
+    const v = Number(el.value);
+    if(isNaN(v) || v<min || v>max){
+        el.classList.add('invalid');
+    } else {
+        el.classList.remove('invalid');
+    }
+}
+
+function toggleInfo(btn) {
+    const content = btn.nextElementSibling;
+    content.classList.toggle('show');
+    btn.classList.toggle('active');
+}
+
+/* ============================
+   CALCULATION
+============================ */
+function recalc(){
+    const cls = CLASSES[elClass.value];
+    if(!cls) return;
+
+    let clvl = clampNumber(elCLvl.value,1,110);
+    let hardVit = clampNumber(elhardVit.value,0,100000);
+    let totalVit = clampNumber(eltotalVit.value,0,100000);	
+    let softVit = Math.max(0, totalVit - hardVit);
+	elsoftVit.textContent = softVit;
+    let flatLife = clampNumber(elFlatLife.value,0,100000);
+    let flatLifePer = clampNumber(elFlatLifePer.value,0,100000);
+    let pct = Number(elPctLife.value)||0;
+    let questLife = Number(elQuestLife.value)||0;
+
+    validateField(elCLvl,1,110);
+    validateField(elhardVit,cls.startingVit,100000);
+    validateField(eltotalVit,0,100000);
+    validateField(elFlatLife,0,100000);
+    validateField(elFlatLifePer,0,100000);
+
+    const lifeFromhardVit = hardVit*LIFE_PER_VIT;
+    const lifeFromLevel = (clvl-1)*cls.lifePerLevel;
+    const flatLifeFromCL = flatLifePer*clvl;
+    const softLife = softVit*LIFE_PER_VIT;
+    const softHalf = softLife/2;
+
+    const baseLife = LIFE_AT_LVL1 + lifeFromhardVit + lifeFromLevel + questLife
+	const beforePct = LIFE_AT_LVL1 + lifeFromhardVit + lifeFromLevel + questLife + flatLife + flatLifeFromCL + softHalf;
+    const afterPct = Math.floor(beforePct*(100+pct)/100);
+    const finalLife = Math.floor(afterPct + softHalf);
+
+
+    // Build visual breakdown
+    formulaContainer.innerHTML = `
+        <div class="calc-row"><span>Starting Life at cLvl 1</span><span>${LIFE_AT_LVL1}</span></div>
+        <div class="calc-row"><span>Hard Vitality (${hardVit} × 1)</span><span>+ ${lifeFromhardVit}</span></div>
+        <div class="calc-row"><span>+Life from Level Ups (${clvl}-1) × ${cls.lifePerLevel}</span><span>+ ${lifeFromLevel}</span></div>
+        <div class="calc-row"><span>+Life from Quest Rewards</span><span>+ ${questLife}</span></div>
+		<div class="calc-row total-row"><span>Base Life</span><span>${baseLife}</span></div>
+        <div class="calc-row"><span>+Flat Life</span><span>+ ${flatLife}</span></div>
+        <div class="calc-row"><span>+Flat Life per Char Lvl (${flatLifePer} × ${clvl})</span><span>+ ${flatLifeFromCL}</span></div>
+        <div class="calc-row"><span>+Life from Soft Vitality (50% of ${softLife})</span><span>+ ${softHalf}</span></div>
+        <div class="calc-row total-row"><span>Life Before +% to Life</span><span>${beforePct.toFixed(2)}</span></div>
+        <div class="calc-row" style="margin-top:10px"><span>Apply +${pct}% Life</span><span>× ${( (100+pct)/100 ).toFixed(2)}</span></div>
+		<div class="calc-row total-row"><span>Life After +% to Life</span><span>${afterPct.toFixed(2)}</span></div>
+        <div class="calc-row"><span>+Life from Soft Vitality  (50% of ${softLife})</span><span>+ ${softHalf}</span></div>
+        <div class="calc-row total-row"><span>Total Life</span><span>${finalLife.toFixed(3)}</span></div>
+    `;
+
+    // Display integer in large bulb, keep precise decimal for flavor
+    lifeOrbValue.textContent = Math.floor(finalLife);
+}
+
+/* ============================
+   PREFILL HARD VIT
+============================ */
+function fillhardVitDefault(){
+    const cls = CLASSES[elClass.value];
+    if(!cls) return;
+	elhardVit.value = cls.startingVit;
+}
+
+/* ============================
+   HOTKEYS
+============================ */
+document.addEventListener("keydown", e=>{
+    const map={"a":"Amazon","b":"Barbarian","d":"Druid","i":"Assassin","n":"Necromancer","p":"Paladin","s":"Sorceress"};
+    const key=e.key.toLowerCase();
+    if(map[key] && document.activeElement.tagName !== 'INPUT'){
+		elClass.value = map[key];
+		onClassChange();
+    }
+});
+
+
+/* ============================
+   SHARE FEATURE
+============================ */
+function copyShareLink() {
+    const params = new URLSearchParams({
+        c: elClass.value,
+        l: elCLvl.value,
+        hv: elhardVit.value,
+        tv: eltotalVit.value,
+        fl: elFlatLife.value,
+        fpl: elFlatLifePer.value,
+        p: elPctLife.value,
+        q: elQuestLife.value
+    });
+    // Link generation fixed for GitHub folders
+    const url = window.location.href.split('?')[0] + '?' + params.toString();
+    navigator.clipboard.writeText(url).then(() => alert("Build link copied to clipboard!"));
+}
+
+// Load from URL
+function loadFromURL() {
+    const p = new URLSearchParams(window.location.search);
+    if(p.has('c')) elClass.value = p.get('c');
+    if(p.has('l')) elCLvl.value = p.get('l');
+    if(p.has('hv')) elhardVit.value = p.get('hv');
+    if(p.has('tv')) eltotalVit.value = p.get('tv');
+    if(p.has('fl')) elFlatLife.value = p.get('fl');
+    if(p.has('fpl')) elFlatLifePer.value = p.get('fpl');
+    if(p.has('p')) elPctLife.value = p.get('p');
+    if(p.has('q')) elQuestLife.value = p.get('q');
+    recalc();
+}
+
+
+function onClassChange() {
+    fillhardVitDefault();
+    recalc();
+}
+
+/* ============================
+   GAME DATA & FORMULAS
+============================ */
+function populateInfoTable() {
+    const tbody = document.getElementById("classTableBody");
+    tbody.innerHTML = ""; // Clear existing content
+
+    // Loop through the CLASSES object
+    for (const [className, stats] of Object.entries(CLASSES)) {
+        const row = `<tr>
+            <td>${className}</td>
+            <td>${stats.startingVit}</td>
+            <td>+${stats.lifePerLevel}</td>
+            <td>${LIFE_PER_VIT}</td>
+        </tr>`;
+        tbody.innerHTML += row;
+    }
+}
+
+
+/* ============================
+   EVENT LISTENERS
+============================ */
+// Universal recalculation for all inputs
+[elCLvl, elhardVit, eltotalVit, elFlatLife, elFlatLifePer, elPctLife, elQuestLife].forEach(el=>{
+    el.addEventListener("input", recalc);
+    el.addEventListener("change", recalc);
+});
+
+// ONLY class selector triggers default vit
+elClass.addEventListener("change", onClassChange);
+
+/* ============================
+   INITIALIZE
+============================ */
+// 1. Generate the Info Table from data
+populateInfoTable();
+
+// 2. Set the class defaults first
+fillhardVitDefault(); 
+
+// 3. OVERWRITE those defaults with numbers from the URL (if they exist)
+loadFromURL(); 
+
+// 4. Run the math one last time to show the result
+recalc();
+</script>
+
+</body>
+</html>
