@@ -1,0 +1,655 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cube Recipes Search</title>
+<style>
+:root {
+  /* --- Dimensions --- */
+  --max-width: 950px; 
+  
+  --title-size-large: 24px;
+  --title-size-small: 18px;
+  
+  --recipe-font-size: 14px;
+  --section-font-size: 16px;
+  --subsection-font-size: 15px;
+  --table-header-size: 15px;
+
+  /* --- Dark Theme (Default) --- */
+  --page-bg: #050505;
+  --panel-bg: #1a1a1a;
+  --sticky-bg: #050505; 
+  --thead-bg: #333;
+  --border-color: #3a3a3a;
+  --text-main: #bfbfbf;
+  --text-muted: #888;
+  --color-section: #ffb14d;
+  --color-subsection: #ffea6a;
+  --loaded-color: #ffcc66;
+  --results-color: #ddd;
+  --input-bg: #222;
+  --input-border: #444;
+  --btn-bg: #333;
+  --link-color: #4dd2ff; /* Bright Cyan-Blue for visibility */
+  --nav-bg: #111;
+}
+
+body.light-mode {
+  /* --- Light Theme --- */
+  --page-bg: #f4f4f4;
+  --panel-bg: #ffffff;
+  --sticky-bg: #f4f4f4;
+  --thead-bg: #e0e0e0;
+  --border-color: #ccc;
+  --text-main: #111;
+  --text-muted: #555;
+  --color-section: #cc7a00;
+  --color-subsection: #b3a200;
+  --loaded-color: #b36b00;
+  --results-color: #000;
+  --input-bg: #fff;
+  --input-border: #aaa;
+  --btn-bg: #ddd;
+  --link-color: #0066cc; /* Darker blue for white background */
+  --nav-bg: #e8e8e8;
+}
+
+/* Base Reset */
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: var(--page-bg);
+  color: var(--text-main);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-height: 100vh;
+}
+
+.wrap { width: 100%; max-width: var(--max-width); }
+
+/* --- Sticky Header --- */
+.sticky-top {
+  position: sticky;
+  top: 0;
+  background-color: var(--sticky-bg);
+  z-index: 100;
+  padding: 0;
+  border-bottom: 1px solid var(--border-color);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  transition: all 0.3s ease;
+}
+
+/* Top Bar (Tools & Links) */
+.top-bar {
+    width: 100%;
+    max-width: var(--max-width);
+    display: flex;
+    justify-content: space-between;
+    padding: 4px 10px;
+    font-size: 12px;
+    background: rgba(255,255,255,0.03);
+    border-bottom: 1px solid var(--border-color);
+    transition: height 0.3s, opacity 0.3s, padding 0.3s;
+    overflow: hidden;
+}
+.top-bar a { color: var(--text-muted); text-decoration: none; font-weight: bold; transition: color 0.2s; }
+.top-bar a:hover { color: var(--color-section); }
+
+/* Main Content Wrapper in Header */
+.header-content {
+  width: 100%;
+  max-width: var(--max-width);
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* Title Row */
+.header-row {
+  display: flex;
+  justify-content: center; /* Center title */
+  align-items: center;
+  width: 100%;
+  margin-bottom: 5px;
+  position: relative;
+}
+
+.title-group { 
+    display: flex; 
+    align-items: center; 
+    gap: 10px; 
+    transition: transform 0.3s;
+}
+
+.title-group h1 { 
+    margin: 0; 
+    font-size: var(--title-size-large); 
+    color: var(--color-section); 
+    text-align: center;
+    white-space: nowrap;
+    transition: font-size 0.3s ease;
+}
+.logo img { width: 42px; height: 42px; transition: width 0.3s, height 0.3s; }
+
+/* Info Group (Ver / Loaded) - Absolute positioned to not mess up centering */
+.info-group { 
+    position: absolute; 
+    right: 0;
+    top: 0;
+    text-align: right; 
+    font-size: 11px; 
+    color: var(--text-muted); 
+    line-height: 1.3;
+    transition: opacity 0.3s;
+}
+.info-group .highlight { color: var(--loaded-color); font-weight: bold; }
+.info-group a { color: var(--text-muted); text-decoration: underline; cursor: pointer; }
+.info-group a:hover { color: var(--color-section); }
+#statusLight { display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: #555; margin-right: 3px; vertical-align: middle;}
+
+/* Navigation Links */
+.nav-links {
+  width: 100%;
+  background: var(--nav-bg);
+  padding: 4px 2px;
+  margin-bottom: 8px;
+  border-radius: 4px;
+  font-size: 11px;
+  text-align: center;
+  line-height: 1; /* Tighter spacing */
+  border: 1px solid var(--border-color);
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 3px; /* Smaller gap */
+}
+.nav-links a {
+  color: var(--link-color);
+  text-decoration: none;
+  cursor: pointer;
+  white-space: nowrap;
+  padding: 0 2px;
+}
+.nav-links a:hover { text-decoration: underline; color: var(--color-section); }
+
+/* Controls */
+.controls {
+  display: flex;
+  gap: 8px;
+  width: 100%;
+  justify-content: center;
+}
+.controls input {
+  padding: 8px 12px;
+  font-size: var(--recipe-font-size);
+  background: var(--input-bg);
+  border: 1px solid var(--input-border);
+  color: var(--text-main);
+  border-radius: 4px;
+  outline: none;
+  flex: 1;
+}
+.controls button {
+  padding: 8px 12px;
+  border-radius: 4px;
+  border: 1px solid var(--input-border);
+  background: var(--btn-bg);
+  color: var(--text-main);
+  cursor: pointer;
+  white-space: nowrap;
+}
+.controls button:hover { border-color: var(--text-muted); }
+
+/* --- Compact Mode (Applied via JS on Scroll) --- */
+.sticky-top.compact .top-bar {
+    height: 0; padding: 0; opacity: 0; border: none;
+}
+.sticky-top.compact .header-content { padding-top: 5px; padding-bottom: 5px; }
+.sticky-top.compact .header-row { margin-bottom: 2px; }
+.sticky-top.compact .logo img { width: 24px; height: 24px; }
+.sticky-top.compact h1 { font-size: var(--title-size-small); }
+.sticky-top.compact .info-group { opacity: 0; pointer-events: none; }
+/* Nav links stay visible in compact mode, just ensuring they don't jump */
+
+/* --- Results --- */
+#results {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  margin-top: 15px;
+  padding-bottom: 40px;
+}
+
+.results-count {
+  width: 100%;
+  max-width: var(--max-width);
+  text-align: left;
+  font-size: 13px;
+  color: var(--text-muted);
+  margin-bottom: 5px;
+  padding-left: 5px;
+  min-height: 18px;
+}
+
+table.recipeTable {
+  width: 100%;
+  max-width: var(--max-width);
+  border-collapse: collapse;
+  font-size: var(--recipe-font-size);
+  background: var(--panel-bg);
+  table-layout: fixed;
+}
+table.recipeTable th, table.recipeTable td {
+  border: 1px solid var(--border-color);
+  padding: 6px 8px;
+  text-align: center;
+  vertical-align: middle;
+  word-break: break-word;
+  width: 50%;
+  color: var(--text-main);
+}
+table.recipeTable th { background: var(--thead-bg); font-weight: bold; font-size: var(--table-header-size); }
+
+/* Section Styling */
+.section-name {
+  text-align: center;
+  font-weight: bold;
+  font-size: var(--section-font-size);
+  color: var(--color-section) !important;
+  padding: 8px;
+  background: var(--input-bg);
+  border-top: 2px solid var(--border-color) !important;
+}
+.subsection-name {
+  text-align: center;
+  font-weight: bold;
+  font-size: var(--subsection-font-size);
+  color: var(--color-subsection) !important;
+  padding: 5px;
+  background: var(--panel-bg);
+  border-bottom: 1px solid var(--border-color);
+}
+.table-end { text-align: center; font-style: italic; color: var(--text-muted); background: var(--panel-bg); padding: 6px; }
+.no-results { text-align: center; color: var(--text-muted); padding: 20px; width: 100%; }
+
+/* --- Footer --- */
+footer { 
+    margin-top: auto; 
+    padding: 20px; 
+    text-align: center; 
+    color: var(--text-muted); 
+    font-size: 12px; 
+    border-top: 1px solid var(--border-color);
+    width: 100%;
+    max-width: var(--max-width);
+}
+footer .disclaimer {
+    margin-top: 10px;
+    font-style: italic;
+    opacity: 0.7;
+}
+
+/* --- LIGHT MODE COLOR OVERRIDES --- */
+body.light-mode table.recipeTable td font[color="white"],
+body.light-mode table.recipeTable td font[color="#ffffff"] {
+  color: #000 !important;
+  font-weight: bold;
+}
+/* Decipherers: Yellow -> Dark Gold */
+body.light-mode table.recipeTable td font[color="yellow"],
+body.light-mode table.recipeTable td font[color="#ffff00"] {
+  color: #b8860b !important;
+  font-weight: bold;
+}
+body.light-mode table.recipeTable td { color: #111; }
+
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  
+  <!-- Sticky Header Wrapper -->
+  <div class="sticky-top" id="stickyHeader">
+    
+    <!-- Top Bar for External Links -->
+    <div class="top-bar">
+        <a href="https://doubleeclipse.github.io/esr-tools/">← ESR Tools Hub</a>
+        <a href="https://celestialrayone.github.io/Eastern_Sun_Resurrected/docs/Eastern%20Sun%20Resurrected%20Cube%20Recipes.html">Official Cube Page ↗</a>
+    </div>
+
+    <div class="header-content">
+        
+        <div class="header-row">
+          <div class="title-group">
+            <div class="logo"><img src="https://celestialrayone.github.io/Eastern_Sun_Resurrected/docs/images/esricon.png" alt="ES Icon"></div>
+            <h1 id="pageTitle">Cube Recipes Search</h1>
+          </div>
+          
+          <div class="info-group">
+			<div>Cube Recipes Search v0.154</div>
+			<div id="versionDisplay">ESR Ver: Checking...</div>
+            <div><span id="statusLight"></span><span id="loadedCount" class="highlight">Connecting...</span></div>
+            <!-- Count removed from here, put below controls -->
+          </div>
+        </div>
+
+        <!-- Nav Links (Visible on Scroll) -->
+        <div class="nav-links" id="navBar">Loading sections...</div>
+
+        <div class="controls">
+          <input id="inputSearch" placeholder="Search Input... (Alt+Z)">
+          <input id="outputSearch" placeholder="Search Output... (Alt+X)">
+          <button id="clearBtn">Clear (Alt+R)</button>
+          <button id="themeBtn">☀ Theme</button>
+        </div>
+
+        <!-- Count displayed here -->
+        <div class="results-count" id="resultsCountBar"></div>
+    </div>
+  </div>
+
+  <div id="results"></div>
+
+  <footer>
+    Site vibe coded by <strong>DoubleEclipse</strong> using <strong>ChatGPT</strong>
+    <div class="disclaimer">
+        Disclaimer: This is an unofficial community tool. Data is scraped live from the official documentation. 
+        Formatting quirks may occur. Please verify with the Official Cube Page if unsure.
+    </div>
+  </footer>
+
+</div>
+
+<script>
+(async function(){
+const URL="https://celestialrayone.github.io/Eastern_Sun_Resurrected/docs/Eastern%20Sun%20Resurrected%20Cube%20Recipes.html";
+const modInfoURL="https://raw.githubusercontent.com/CelestialRayOne/Eastern_Sun_Resurrected_Lan/refs/heads/main/EasternSunLAN.mpq/modinfo.json?t=" + new Date().getTime();
+const changelogURL="https://celestialrayone.github.io/Eastern_Sun_Resurrected/docs/changelogs.html";
+
+const loadedEl=document.getElementById("loadedCount");
+const resultsDiv=document.getElementById("results");
+const resultsCountBar=document.getElementById("resultsCountBar");
+const inputBox=document.getElementById("inputSearch");
+const outputBox=document.getElementById("outputSearch");
+const statusLight=document.getElementById("statusLight");
+const pageTitle=document.getElementById("pageTitle");
+const versionDisplay=document.getElementById("versionDisplay");
+const navBar=document.getElementById("navBar");
+const themeBtn=document.getElementById("themeBtn");
+const stickyHeader=document.getElementById("stickyHeader");
+
+function cleanLines(str){return str.split(/\n/).map(l=>l.trim()).filter(l=>l.length>0).join("\n");}
+function sanitize(html){return String(html).replace(/>\s+</g,'><').trim();}
+
+// 1. Fetch Mod Version
+async function fetchModVersion(){
+  try{
+    const resp = await fetch(modInfoURL);
+    if(resp.ok){
+      const json = await resp.json();
+      if(json.version) {
+        versionDisplay.innerHTML = "ESR Ver: " + json.version;
+      } else {
+        versionDisplay.innerHTML = "ESR Ver: <a href='"+changelogURL+"' target='_blank'>Check Log</a>";
+      }
+    } else {
+        versionDisplay.innerHTML = "ESR Ver: <a href='"+changelogURL+"' target='_blank'>Check Log</a>";
+    }
+  }catch(e){
+    versionDisplay.innerHTML = "ESR Ver: <a href='"+changelogURL+"' target='_blank'>Check Log</a>";
+  }
+}
+fetchModVersion();
+
+// 2. Fetch Cube.htm for Title
+async function fetchCubeTitle(){
+  try{
+    const resp=await fetch(URL);
+    if(resp.ok){
+      const html=await resp.text();
+      const match = html.match(/<title>(.*?)<\/title>/i);
+      if(match && match[1]){
+         // Clean title
+         let t = match[1].replace(/-/g,'').trim() + " Cube Recipes Search";
+         document.title = t;
+         pageTitle.textContent = t; 
+      }
+    }
+  }catch(e){}
+}
+fetchCubeTitle();
+
+// 3. Load Recipes
+async function loadRecipes(){
+  try{
+    const resp=await fetch(URL);
+    if(!resp.ok){
+      loadedEl.textContent="Offline";
+      statusLight.style.background="red";
+      return [];
+    }
+    statusLight.style.background="#4f4"; 
+    const html=await resp.text();
+    const parser=new DOMParser();
+    const doc=parser.parseFromString(html,"text/html");
+    const data=[];
+    let currentSection="", currentSubsection="";
+
+    doc.querySelectorAll("table").forEach(table=>{
+      table.querySelectorAll("tr").forEach(row=>{
+        const tds=row.querySelectorAll("td");
+        
+        // Exclude complex tables (Gem melding has >3 cols)
+        if (tds.length > 3) return; 
+
+        // Section Header
+        if(tds.length===1 && tds[0].colSpan==2){
+          const font=tds[0].querySelector("font");
+          if(!font) return;
+          const size=font.getAttribute("size")||"";
+          let text="";
+          const b=font.querySelector("b");
+          if(b) text=cleanLines(b.textContent);
+          else text=cleanLines(font.textContent);
+          
+          if(!text) return;
+
+          if(size=="+1"){ 
+              currentSection=text; 
+              currentSubsection=""; 
+              return;
+          }
+          if(size=="" && text.length<=60){ 
+              currentSubsection=text; 
+              return;
+          }
+          return;
+        }
+
+        // Recipe Row
+        if(tds.length>=2){
+            const bg0=(tds[0].getAttribute("bgcolor")||"").toLowerCase().trim();
+            const bg1=(tds[1].getAttribute("bgcolor")||"").toLowerCase().trim();
+            if(bg0==="#1e0000"||bg0==="#300000"||bg1==="#1e0000"||bg1==="#300000") return;
+            
+            const t0=(tds[0].innerText||"").toLowerCase().trim();
+            const t1=(tds[1].innerText||"").toLowerCase().trim();
+            if(t0==="input" && t1==="output") return;
+            
+            const inputHTML=sanitize(tds[0].innerHTML);
+            const outputHTML=sanitize(tds[1].innerHTML);
+            if(!inputHTML||!outputHTML) return;
+            
+            data.push({
+                inputHTML, 
+                outputHTML, 
+                section: currentSection, 
+                subsection: currentSubsection
+            });
+        }
+      });
+    });
+    return data;
+  }catch(e){
+    loadedEl.textContent="Error";
+    statusLight.style.background="red";
+    return [];
+  }
+}
+
+const recipes=await loadRecipes();
+loadedEl.textContent=`${recipes.length} Recipes`;
+
+// 4. Generate Nav
+function generateNav() {
+    navBar.innerHTML = "";
+    const sections = [...new Set(recipes.map(r => r.section).filter(s => s))];
+    
+    if(sections.length === 0) {
+        navBar.textContent = "No sections found.";
+        return;
+    }
+
+    sections.forEach(secName => {
+        const a = document.createElement("a");
+        a.textContent = `[${secName}]`;
+        a.href = "#"; 
+        
+        const targetId = "sec-" + secName.replace(/[^a-zA-Z0-9]/g, "_");
+        
+        a.onclick = (e) => {
+          e.preventDefault();
+          const el = document.getElementById(targetId);
+          if(el) {
+            // Adjust offset based on header state
+            const offset = stickyHeader.classList.contains('compact') ? 140 : 180;
+            const elementPosition = el.getBoundingClientRect().top;
+            const offsetPosition = elementPosition + window.pageYOffset - offset;
+            window.scrollTo({ top: offsetPosition, behavior: "smooth" });
+          } else {
+             // Visual feedback if filtered
+             inputBox.style.borderColor = "var(--color-section)";
+             setTimeout(()=>inputBox.style.borderColor = "var(--input-border)", 300);
+          }
+        };
+        navBar.appendChild(a);
+    });
+}
+generateNav();
+
+// 5. Render
+function render(){
+  const inF=inputBox.value.toLowerCase();
+  const outF=outputBox.value.toLowerCase();
+  
+  const filtered=recipes.filter(r=>r.inputHTML.toLowerCase().includes(inF)&&r.outputHTML.toLowerCase().includes(outF));
+  
+  // Update count text
+  resultsCountBar.textContent = `Found: ${filtered.length}`;
+  
+  resultsDiv.innerHTML="";
+
+  if(filtered.length===0){
+      resultsDiv.innerHTML='<div class="no-results">No matching recipes found.</div>'; 
+      return;
+  }
+
+  const table=document.createElement("table"); table.className="recipeTable";
+  
+  const thead=document.createElement("thead"); 
+  const trHead=document.createElement("tr");
+  const th1=document.createElement("th"); th1.textContent="Input";
+  const th2=document.createElement("th"); th2.textContent="Output";
+  trHead.appendChild(th1); trHead.appendChild(th2); 
+  thead.appendChild(trHead); 
+  table.appendChild(thead);
+  
+  const tbody=document.createElement("tbody");
+
+  let lastSection = "";
+  let lastSubsection = "";
+
+  filtered.forEach(r=>{
+    // Section Header
+    if(r.section !== lastSection) {
+        const tr=document.createElement("tr"); 
+        const idString = "sec-" + r.section.replace(/[^a-zA-Z0-9]/g, "_");
+        tr.id = idString; 
+        tr.innerHTML=`<td colspan="2" class="section-name">${r.section}</td>`; 
+        tbody.appendChild(tr); 
+        
+        lastSection = r.section;
+        lastSubsection = ""; 
+    }
+    
+    // Subsection Header
+    if(r.subsection && r.subsection !== lastSubsection){
+      const tr=document.createElement("tr"); 
+      tr.innerHTML=`<td colspan="2" class="subsection-name">${r.subsection}</td>`; 
+      tbody.appendChild(tr);
+      lastSubsection = r.subsection;
+    }
+    
+    // Recipe
+    const tr=document.createElement("tr"); 
+    tr.innerHTML=`<td class="input-text">${r.inputHTML}</td><td class="output-text">${r.outputHTML}</td>`; 
+    tbody.appendChild(tr);
+  });
+
+  const endTr=document.createElement("tr"); 
+  endTr.innerHTML=`<td colspan="2" class="table-end">End of Results</td>`; 
+  tbody.appendChild(endTr);
+  
+  table.appendChild(tbody); 
+  resultsDiv.appendChild(table);
+}
+
+// 6. Events
+const debounce=(fn,ms=120)=>{let t;return(...a)=>{clearTimeout(t);t=setTimeout(()=>fn(...a),ms);};};
+inputBox.addEventListener("input",debounce(render));
+outputBox.addEventListener("input",debounce(render));
+
+document.getElementById("clearBtn").addEventListener("click",()=>{
+    inputBox.value="";
+    outputBox.value="";
+    inputBox.focus();
+    render();
+});
+
+let isLight = false;
+themeBtn.addEventListener("click", () => {
+    isLight = !isLight;
+    document.body.classList.toggle("light-mode", isLight);
+    themeBtn.textContent = isLight ? "☾ Theme" : "☀ Theme";
+});
+
+window.addEventListener("scroll", () => {
+    if (window.scrollY > 50) {
+        stickyHeader.classList.add("compact");
+    } else {
+        stickyHeader.classList.remove("compact");
+    }
+});
+
+document.addEventListener("keydown",e=>{
+    if(e.altKey && e.key.toLowerCase()==="z"){inputBox.focus();e.preventDefault();} 
+    if(e.altKey && e.key.toLowerCase()==="x"){outputBox.focus();e.preventDefault();} 
+    if(e.altKey && e.key.toLowerCase()==="r"){inputBox.value="";outputBox.value="";render();}
+});
+
+render();
+
+})();
+</script>
+</body>
+</html>
