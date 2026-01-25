@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DoubleEclipse's Eastern Sun Resurrected Tools</title>
+    <!-- Same fonts as the Life Tool -->
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=Quicksand:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #090c10;
+            --panel: #12171f;
+            --text: #c9d1d9;
+            --accent: #d4af37; /* Gold/Yellow Diablo color */
+            --accent-dim: #997b24;
+            --border: rgba(212, 175, 55, 0.2);
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: 'Quicksand', sans-serif;
+            margin: 0;
+            padding: 40px 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* Centered Header with Icon on the Left */
+        header {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 18px;
+            margin-bottom: 50px;
+            text-align: center; /* Aligns text block to the left of the flex container */
+        }
+
+        header img {
+            width: 56px;
+            height: 56px;
+            border-radius: 8px;
+        }
+
+        .header-text {
+            display: flex;
+            flex-direction: column;
+        }
+
+        header h1 {
+            font-family: 'Cinzel', serif;
+            font-size: 2rem; /* Title size, was 2.5 */
+            font-weight: 700;
+            color: var(--accent);
+            margin: 0;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+            line-height: 1.1;
+        }
+
+        .subtitle {
+            font-family: 'Quicksand', sans-serif;
+            font-size: 1.2rem; /* Subtitle size, was 1 */
+            color: var(--text);
+            opacity: 0.7;
+            margin: 5px 0 0 0;
+        }
+
+        /* Grid for Tool Cards */
+        .tools-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 24px;
+            width: 100%;
+            max-width: 1000px;
+        }
+
+        /* Tool Card Styles */
+        .tool-card {
+            background: var(--panel);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 30px;
+            text-decoration: none;
+            color: inherit;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            transition: transform 0.2s ease, border-color 0.2s ease, background 0.2s ease;
+            box-shadow: inset 0 0 20px rgba(0,0,0,0.5);
+        }
+
+        .tool-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--accent);
+            background: #1c232b;
+        }
+
+        /* WIP (Work in Progress) Style - Industry Standard for unreleased tools */
+        .tool-card.wip {
+            opacity: 0.5;
+            filter: grayscale(0.8);
+            cursor: default;
+            pointer-events: none; /* Prevents clicking */
+        }
+        
+        /* Optional: Add a 'Coming Soon' label if desired, but visual dimming is usually enough */
+
+        /* Icon Container inside the block */
+        .tool-icon {
+            width: 100px;
+            height: 100px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .tool-icon img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+            filter: drop-shadow(0 0 10px rgba(0,0,0,0.8));
+        }
+
+        .tool-card h2 {
+            font-family: 'Cinzel', serif;
+            color: var(--accent);
+            margin: 0 0 10px 0;
+            font-size: 1.3rem;
+        }
+
+        .tool-card p {
+            font-size: 0.95rem;
+            line-height: 1.5;
+            color: var(--text);
+            margin: 0;
+            opacity: 0.8;
+        }
+
+        footer {
+            margin-top: 60px;
+            font-size: 12px;
+            color: var(--accent-dim);
+        }
+
+        @media(max-width: 600px) {
+            header { flex-direction: column; text-align: center; }
+            header h1 { font-size: 1.8rem; }
+            header img { width: 40px; height: 40px; }
+            .header-text { align-items: center; }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <img src="https://celestialrayone.github.io/Eastern_Sun_Resurrected/docs/images/esricon.png" alt="ESR Icon">
+        <div class="header-text">
+            <h1>DoubleEclipse's Eastern Sun Resurrected Tools</h1>
+            <p class="subtitle">Eastern Sun Resurrected is a mod for Diablo 2: Resurrected</p>
+        </div>
+    </header>
+
+    <div class="tools-grid">
+
+        <!-- Item Database Tool Card (Live) -->
+        <a href="./item-database/" class="tool-card">
+            <div class="tool-icon">
+                <img src="https://raw.githubusercontent.com/DoubleEclipse/doubleeclipse.github.io/refs/heads/main/esr-tools/images/weapons_crate.png" alt="Weapons Crate">
+            </div>
+            <h2>Item Database</h2>
+            <p>Combines most item related pages from the Official ESR site into one huge, searchable page.</p>
+        </a>
+
+        <!-- Life Calculator Tool Card (WIP) -->
+        <!-- To make live: Remove "wip" from class and update href -->
+        <a href="./life-calc/" class="tool-card">
+            <div class="tool-icon">
+                <img src="https://raw.githubusercontent.com/DoubleEclipse/doubleeclipse.github.io/refs/heads/main/esr-tools/images/health_globe_3_diablo2_resurrected_stats_wiki_guide.png" alt="Life Orb">
+            </div>
+            <h2>Life Calculator</h2>
+            <p>Calculates your character's total Life based on stats, skills and items.</p>
+        </a>
+
+        <!-- Oskill Item Hunter Tool Card (WIP) -->
+        <a href="#" class="tool-card wip">
+            <div class="tool-icon">
+                <!-- Temporary icon for Oskill Hunter -->
+                <img src="https://diablo2.wiki.fextralife.com/file/Diablo-2/lightning_icon_diablo2_wiki_guide.png" alt="Oskill Icon">
+            </div>
+            <h2>Organ Drop Hunter</h2>
+            <p>Search who and where drops Organs and some cubing materials.
+			ESR version dependent.</p>
+        </a>
+
+        <!-- Cube Recipes Search Tool Card (WIP) -->
+        <a href="#" class="tool-card wip">
+            <div class="tool-icon">
+                <!-- Temporary icon for Cube Recipes -->
+                <img src="https://diablo2.wiki.fextralife.com/file/Diablo-2/horadric_cube_diablo2_resurrected_wiki_guide.png" alt="Cube Icon">
+            </div>
+            <h2>Cube Recipes Search</h2>
+            <p>Quickly look up recipes for the Horadric Cube to craft, upgrade, and transmute your gear.</p>
+        </a>
+
+    </div>
+
+    <footer>Vibe coded by DoubleEclipse using Google AI Studio</footer>
+
+</body>
+</html>
