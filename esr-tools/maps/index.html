@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Eastern Sun Resurrected Maps Atlas</title>
+    <!-- DATA SOURCE -->
+    <script src="esr_data.js"></script>
+    <!-- GRAPH LIBRARY (Still here, but disabled via JS flag) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cytoscape/3.23.0/cytoscape.min.js"></script>
+    
+    <style>
+        :root {
+            --bg-color: #121212; /* Dark Gray like esr-tools */
+            --header-bg: #1a1a1a;
+            --text-main: #e0e0e0;
+            --text-muted: #888;
+            --border-color: #333;
+            --accent: #4a6fa5; 
+            --box-bg: #1e1e1e;
+        }
+        body { background: var(--bg-color); color: var(--text-main); font-family: 'Segoe UI', sans-serif; margin: 0; font-size: 14px; height: 100vh; display: flex; flex-direction: column; }
+        a { text-decoration: none; color: var(--text-muted); transition: 0.2s; }
+        a:hover { color: #fff; }
+
+        /* --- HEADER --- */
+        #site-header {
+            background: var(--header-bg); border-bottom: 1px solid var(--border-color);
+            padding: 0 20px; height: 60px; display: flex; align-items: center; justify-content: space-between;
+        }
+        .header-left, .header-right { flex: 1; display: flex; align-items: center; gap: 15px; }
+        .header-right { justify-content: flex-end; }
+        
+        .header-center { flex: 2; display: flex; justify-content: center; align-items: center; gap: 15px; }
+        .logo { height: 32px; }
+        
+        .title-block { text-align: center; }
+        .main-title { font-size: 1.6rem; font-weight: bold; color: #d4af37; letter-spacing: 0.5px; }
+        .sub-title { font-size: 0.75rem; color: var(--text-muted); }
+        
+        .nav-link { font-size: 0.9rem; font-weight: 500; color: var(--accent); }
+        .nav-link:hover { text-decoration: underline; color: #6fa3ef; }
+        
+        /* --- TABS --- */
+        #tab-bar { 
+            display: flex; justify-content: center; gap: 10px; padding: 15px; background: var(--bg-color);
+        }
+        .tab-btn {
+            background: var(--box-bg); border: 1px solid var(--border-color); color: var(--text-muted);
+            padding: 6px 20px; cursor: pointer; border-radius: 4px; font-weight: bold; font-size: 0.85rem;
+        }
+        .tab-btn.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+        
+        .tab-btn.disabled { 
+            opacity: 0.4; cursor: not-allowed; text-decoration: line-through; 
+        }
+
+        /* --- CONTENT --- */
+        #content-area { flex-grow: 1; overflow: hidden; position: relative; }
+
+        /* --- TABLE --- */
+        #view-table { 
+            height: 100%; overflow-y: auto; padding: 0 20px; 
+            display: flex; justify-content: center; 
+        }
+        
+        table { 
+            border-collapse: collapse; 
+            width: auto; 
+            min-width: 800px;
+            margin-bottom: 40px;
+            background: var(--box-bg);
+            border-radius: 4px; overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+        }
+        
+        th { 
+            text-align: left; background: #252525; color: #ccc; 
+            padding: 10px 12px; border-bottom: 2px solid var(--border-color);
+            position: sticky; top: 0; z-index: 5; font-size: 0.85rem; text-transform: uppercase;
+        }
+        td { 
+            padding: 6px 12px; border-bottom: 1px solid #2a2a2a; 
+            color: #ccc; vertical-align: middle;
+        }
+        tr:hover { background: #2a2a2a; }
+
+        /* ACT BADGES (Matching original colors) */
+        .badge { 
+            display: inline-flex; width: 24px; height: 18px; align-items: center; justify-content: center; 
+            border-radius: 3px; color: #000; font-weight: bold; font-size: 10px; 
+        }
+        .act-1 { background: #90ee90; } /* Light Green */
+        .act-2 { background: #ffd700; } /* Yellow */
+        .act-3 { background: #006400; color: #fff; } /* Dark Green */
+        .act-4 { background: #8b0000; color: #fff; } /* Dark Red */
+        .act-5 { background: #ffffff; color: #000; } /* White */
+        .act-6 { background: #fff; color: #000; border: 2px solid #ff9800; line-height: 14px;} /* Endgame */
+
+        /* Columns */
+        .c-n { color: #888; }
+        .c-nm { color: #d64d4d; }
+        .c-h { color: #ffb74d; font-weight: bold; }
+        .c-wp { color: #4fc3f7; font-weight: bold; text-align: center;}
+        .c-con { color: #666; font-size: 0.75rem; max-width: 200px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+        /* --- FOOTER --- */
+        #footer {
+            background: #0e0e0e; border-top: 1px solid var(--border-color);
+            padding: 4px; text-align: center; color: #d4af37; font-size: 0.75rem;
+        }
+
+        /* Map Placeholder */
+        #view-map { display: none; height: 100%; text-align: center; padding-top: 50px; color: #555; }
+    </style>
+</head>
+<body>
+
+    <!-- HEADER -->
+    <header id="site-header">
+        <div class="header-left">
+            <a href="/esr-tools/" class="nav-link">&larr; ESR Tools</a>
+        </div>
+        
+        <div class="header-center">
+            <img src="https://celestialrayone.github.io/Eastern_Sun_Resurrected/docs/images/esricon.png" alt="ESR Logo" class="logo">
+            <div class="title-block">
+                <div class="main-title">Eastern Sun Resurrected Maps Atlas</div>
+                <div class="sub-title" id="version-display">Tool v0.1 | ESR Ver: Loading...</div>
+            </div>
+        </div>
+
+        <div class="header-right">
+            <a href="https://celestialrayone.github.io/Eastern_Sun_Resurrected/docs/changelogs.html" target="_blank" class="nav-link">
+                ESR Site &rarr;
+            </a>
+        </div>
+    </header>
+
+    <!-- TABS -->
+    <div id="tab-bar">
+        <button class="tab-btn active" id="btn-table">Data Table</button>
+        <button class="tab-btn" id="btn-map">Visual Map</button>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div id="content-area">
+        <div id="view-table">
+            <table>
+                <thead>
+                    <tr>
+                        <th width="40">Act</th>
+                        <th>Area Name</th>
+                        <th width="30" title="Waypoint">WP</th>
+                        <th>Lvl (N)</th>
+                        <th>Lvl (NM)</th>
+                        <th>Lvl (H)</th>
+                        <th>Density</th>
+                        <th>Uniques</th>
+                        <th title="Connections">To...</th>
+                    </tr>
+                </thead>
+                <tbody id="table-body">
+                    <!-- JS Injects Here -->
+                </tbody>
+            </table>
+        </div>
+        
+        <div id="view-map">
+            <h2>Map View Disabled</h2>
+            <p>This feature is currently under construction.</p>
+        </div>
+    </div>
+
+    <!-- FOOTER -->
+    <div id="footer">
+        Vibe coded by DoubleEclipse using Google AI Studio
+    </div>
+
+<script>
+    // --- CONFIGURATION ---
+    const ENABLE_MAP_VIEW = false; // Set to true to re-enable the map later
+
+    // Load Data
+    let db = [];
+    let modVer = "Unknown";
+
+    if (typeof esrData !== 'undefined') {
+        db = esrData.levels;
+        modVer = esrData.modVersion || "Unknown";
+    }
+
+    // --- INIT ---
+    function init() {
+        document.getElementById('version-display').innerText = `Tool v0.1 | ESR Ver: ${modVer}`;
+        renderTable();
+        setupTabs();
+    }
+
+    function setupTabs() {
+        const btnTable = document.getElementById('btn-table');
+        const btnMap = document.getElementById('btn-map');
+
+        // Table Click
+        btnTable.onclick = function() {
+            document.getElementById('view-table').style.display = 'flex';
+            document.getElementById('view-map').style.display = 'none';
+            btnTable.classList.add('active');
+            if(ENABLE_MAP_VIEW) btnMap.classList.remove('active');
+        };
+
+        // Map Click
+        if (ENABLE_MAP_VIEW) {
+            btnMap.onclick = function() {
+                document.getElementById('view-table').style.display = 'none';
+                document.getElementById('view-map').style.display = 'block';
+                btnMap.classList.add('active');
+                btnTable.classList.remove('active');
+                // Trigger map load here if implemented
+            };
+        } else {
+            btnMap.classList.add('disabled');
+            btnMap.title = "Coming Soon";
+        }
+    }
+
+    // --- RENDER TABLE ---
+    function renderTable() {
+        const tbody = document.getElementById('table-body');
+        if(db.length === 0) {
+            tbody.innerHTML = "<tr><td colspan='9' style='text-align:center; padding:20px;'>Error: esr_data.js not found. Run the Python script.</td></tr>";
+            return;
+        }
+
+        const sorted = [...db].sort((a,b) => (a.act - b.act) || (a.id - b.id));
+        const ROMAN = { 1:"I", 2:"II", 3:"III", 4:"IV", 5:"V", 6:"V" };
+        const CLASSES = { 1:"act-1", 2:"act-2", 3:"act-3", 4:"act-4", 5:"act-5", 6:"act-6" };
+
+        let html = "";
+        sorted.forEach(row => {
+            const badge = `<span class="badge ${CLASSES[row.act]}">${ROMAN[row.act]}</span>`;
+            const wpIcon = row.has_wp ? "✓" : "";
+            
+            // Resolve Neighbors Names for the 'To' column
+            // We limit to 2 items to keep table tight, or show "..."
+            let connNames = row.neighbors.map(nid => {
+                const f = db.find(x => x.id === nid);
+                return f ? f.name : nid;
+            }).join(", ");
+
+            html += `
+                <tr>
+                    <td align="center">${badge}</td>
+                    <td style="font-weight:600; color:#e0e0e0;">${row.name}</td>
+                    <td class="c-wp">${wpIcon}</td>
+                    <td class="c-n">${row.levels[0]}</td>
+                    <td class="c-nm">${row.levels[1]}</td>
+                    <td class="c-h">${row.levels[2]}</td>
+                    <td>${row.density}</td>
+                    <td>${row.uniques}</td>
+                    <td class="c-con" title="${connNames}">${connNames}</td>
+                </tr>
+            `;
+        });
+        tbody.innerHTML = html;
+    }
+
+    init();
+</script>
+</body>
+</html>
