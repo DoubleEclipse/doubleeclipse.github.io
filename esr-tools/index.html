@@ -151,6 +151,79 @@
             header img { width: 40px; height: 40px; }
             .header-text { align-items: center; }
         }
+		
+		
+		/* External Resources Strips */
+		.external-links {
+			margin-top: 70px;
+			width: 100%;
+			max-width: 1000px;
+		}
+
+		.external-links h3 {
+			font-family: 'Cinzel', serif;
+			color: var(--accent-dim);
+			font-size: 1rem;
+			letter-spacing: 1px;
+			margin-bottom: 20px;
+			text-align: center;
+		}
+
+		.link-strip {
+			display: flex;
+			align-items: center;
+			justify-content: space-between;
+			gap: 16px;
+			padding: 7px 10px;
+			background: var(--panel);
+			border: 1px solid var(--border);
+			border-radius: 8px;
+			margin-bottom: 12px;
+			text-decoration: none;
+			color: var(--text);
+			transition: background 0.2s ease, border-color 0.2s ease, transform 0.15s ease;
+		}
+
+		.link-strip:hover {
+			background: #1c232b;
+			border-color: var(--accent);
+			transform: translateY(-1px);
+		}
+
+		.link-left {
+			display: flex;
+			align-items: center;
+			gap: 14px;
+		}
+
+		.link-left img {
+			width: 28px;
+			height: 28px;
+			object-fit: contain;
+			filter: drop-shadow(0 0 6px rgba(0,0,0,0.6));
+		}
+
+		.link-text {
+			display: flex;
+			flex-direction: column;
+		}
+
+		.link-text strong {
+			font-size: 0.95rem;
+			color: var(--accent);
+			font-weight: 600;
+		}
+
+		.link-text span {
+			font-size: 0.8rem;
+			opacity: 0.75;
+		}
+
+		.link-arrow {
+			font-size: 1.2rem;
+			color: var(--accent-dim);
+		}
+
     </style>
 </head>
 <body>
@@ -218,6 +291,60 @@
         </a>
 
     </div>
+
+	<div class="external-links">
+
+		<h3>External Resources</h3>
+
+		<a href="https://celestialrayone.github.io/Eastern_Sun_Resurrected/docs/" 
+		   class="link-strip" target="_blank" rel="noopener">
+			<div class="link-left">
+				<img src="https://celestialrayone.github.io/Eastern_Sun_Resurrected/docs/images/esricon.png" alt="ESR Icon">
+				<div class="link-text">
+					<strong>Official ESR Website</strong>
+					<span>Docs, patch notes, mechanics & downloads</span>
+				</div>
+			</div>
+			<div class="link-arrow">→</div>
+		</a>
+
+		<a href="https://esru.fandom.com/" 
+		   class="link-strip" target="_blank" rel="noopener">
+			<div class="link-left">
+				<img src="https://wiki.archiveteam.org/images/b/bc/Fandom-icon.png" alt="Fandom Wiki">
+				<div class="link-text">
+					<strong>Unofficial ESR Wiki</strong>
+					<span>Community-maintained knowledge base</span>
+				</div>
+			</div>
+			<div class="link-arrow">→</div>
+		</a>
+
+		<a href="https://www.d2rmodding.com/" 
+		   class="link-strip" target="_blank" rel="noopener">
+			<div class="link-left">
+				<img src="https://www.d2rmodding.com/favicon.ico" alt="D2R Modding">
+				<div class="link-text">
+					<strong>D2R Modding</strong>
+					<span>Modding resource center with guides, info, releases and more</span>
+				</div>
+			</div>
+			<div class="link-arrow">→</div>
+		</a>
+
+		<a href="https://locbones.github.io/D2R_DataGuide/" 
+		   class="link-strip" target="_blank" rel="noopener">
+			<div class="link-left">
+				<img src="" alt="">
+				<div class="link-text">
+					<strong>D2R Data Guide (Corrected)</strong>
+					<span>This data guide attempts to improve and correct some of the information provided by Blizzard</span>
+				</div>
+			</div>
+			<div class="link-arrow">→</div>
+		</a>
+
+	</div>
 
     <footer>Vibe coded by DoubleEclipse using Google AI Studio</footer>
 
