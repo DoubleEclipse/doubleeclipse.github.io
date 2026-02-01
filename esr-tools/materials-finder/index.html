@@ -409,7 +409,8 @@
         function getImgPath(itemName) {
             const key = itemName.toLowerCase();
             const file = IMG_MAP[key] || "unknown.png"; 
-            return "images/" + file;
+            // return "images/" + file;
+			return "/esr-tools/images/" + file;
         }
 
         function getActDisplay(row) {
