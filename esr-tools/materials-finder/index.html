@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ESR Materials & Organs Drop Hunter</title>
+    <style>
+        :root { 
+            /* --- FONT CONTROL --- */
+            --font-body: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            --font-header: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            
+            /* --- COLORS --- */
+            --bg: #0d0d0d; 
+            --panel: #1a1a1a; 
+            --border: #333; 
+            --gold: #c7b299; 
+            --text: #ddd; 
+            --highlight: #d4af37; 
+            --btn-bg: #111;
+            --btn-hover: #222;
+        }
+
+        body { 
+            background: var(--bg); 
+            color: var(--text); 
+            font-family: var(--font-body); 
+            margin: 0; 
+            padding: 20px; 
+            font-size: 14px; 
+            min-height: 100vh; 
+            display: flex; 
+            flex-direction: column; 
+        }
+
+		/* --- HEADER LAYOUT (Compact Version) --- */
+        .header-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px; /* Reduced from 25px */
+            padding-bottom: 10px; /* Reduced from 20px */
+            border-bottom: 1px solid #222;
+            gap: 10px; /* Reduced gap */
+        }
+
+        /* Left: Nav Buttons */
+        .nav-left {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex-shrink: 0;
+        }
+
+        .nav-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: var(--btn-bg);
+            border: 1px solid var(--border);
+            color: var(--gold);
+            text-decoration: none;
+            padding: 6px 12px;
+            font-size: 12px;
+            border-radius: 4px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            transition: all 0.2s ease;
+            font-family: var(--font-body);
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        .nav-btn:hover {
+            background: var(--btn-hover);
+            color: var(--highlight);
+            border-color: #555;
+            box-shadow: 0 0 8px rgba(212, 175, 55, 0.1);
+        }
+        
+        .ext-arrow { font-size: 10px; opacity: 0.7; }
+
+        /* Center: Title */
+        .title-center {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px; /* Reduced gap */
+            text-align: center;
+            flex-grow: 1;
+            min-width: 250px;
+        }
+
+        .title-center img { 
+            width: 32px; /* Reduced from 42px */
+            height: 32px; 
+            filter: drop-shadow(0 0 5px rgba(212, 175, 55, 0.5)); 
+        }
+
+        h1 { 
+            color: var(--highlight); 
+            font-family: var(--font-header);
+            letter-spacing: 2px; 
+            font-size: 20px; /* Reduced from 24px */
+            margin: 0; 
+            text-shadow: 0 2px 4px #000; 
+            white-space: nowrap;
+        }
+
+        /* Right: Versions */
+        .version-right {
+            text-align: right;
+            font-size: 11px;
+            color: #777;
+            line-height: 1;
+            background: #111;
+            padding: 4px 12px;
+            border-radius: 6px;
+            border: 1px solid #222;
+            flex-shrink: 0;
+        }
+
+        .ver-row { display: block; white-space: nowrap; }
+        .ver-label { color: #888; margin-right: 5px; }
+        .ver-val { color: var(--gold); font-weight: bold; font-family: monospace; }
+        .ver-live { color: #4cd137; }
+
+        /* --- CONTROLS (Reverted to Original) --- */
+        .controls {
+            background: var(--panel); border: 1px solid var(--border); border-radius: 8px;
+            padding: 20px; margin-bottom: 20px; max-width: 1200px; margin-left: auto; margin-right: auto;
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.7);
+        }
+        
+        .c-group { display: flex; flex-direction: column; }
+        .c-group label { font-size: 0.85em; color: #888; margin-bottom: 6px; font-weight: bold; text-transform: uppercase; }
+        
+        select, input {
+            background: #111; border: 1px solid #444; color: #fff; padding: 12px; border-radius: 4px;
+            font-size: 14px; width: 100%; box-sizing: border-box; transition: border 0.2s;
+        }
+        select:focus, input:focus { border-color: var(--highlight); outline: none; }
+
+        /* --- RESULTS TABLE (Reverted to Original) --- */
+        .table-wrap { max-width: 1200px; margin: 0 auto; flex: 1; }
+        table { width: 100%; border-collapse: collapse; background: var(--panel); box-shadow: 0 4px 10px rgba(0,0,0,0.5); }
+        
+        th { 
+            background: #222; 
+            color: var(--highlight); 
+            padding: 10px 8px; 
+            text-align: left; 
+            border-bottom: 2px solid var(--border); 
+            font-size: 13px; 
+            text-transform: uppercase; 
+            position: sticky; 
+            top: 0; 
+            font-family: var(--font-header);
+        }
+        
+        td { 
+            padding: 4px 8px; 
+            border-bottom: 1px solid #333; 
+            vertical-align: middle; 
+            font-size: 13px; 
+        }
+
+        tr:hover { background: #252525; }
+
+        .icon-col img { width: 28px; height: 28px; object-fit: contain; display: block; }
+        .diff-Normal { color: #eee; }
+        .diff-Nightmare { color: #ff6b6b; }
+        .diff-Hell { color: #ffcc00; }
+
+        /* Act Badges */
+        .act-badge { 
+            border: 1px solid #444; 
+            padding: 1px 0; width: 32px; border-radius: 3px; 
+            text-align: center; display: inline-block; font-weight: 900; font-size: 0.9em;
+            background: #000;
+        }
+        .act-0 { opacity: 0.3; border-style: dashed; color: #888; width: auto; padding: 1px 6px;} /* Boss */
+        
+        .act-1 { color: #90ee90; border-color: #90ee90; } 
+        .act-2 { color: #ffff00; border-color: #ffff00; } 
+        .act-3 { color: #2e8b57; border-color: #2e8b57; } 
+        .act-4 { color: #ff4444; border-color: #ff4444; } 
+        .act-5 { color: #ffffff; border-color: #ffffff; } 
+        .act-endgame { color: #ffffff; border-color: #ff8800; border-width: 2px; } 
+
+        .mob-families { color: #bbb; font-weight: normal; line-height: 1.2; }
+        
+        /* --- FOOTER --- */
+        footer { 
+            text-align: center; 
+            margin-top: 50px; 
+            padding: 10px; 
+            border-top: 1px solid #333; 
+            color: var(--highlight); 
+            font-size: 12px; 
+            opacity: 0.8;
+        }
+
+        #status { text-align: center; color: #666; margin: 10px 0; font-style: italic; }
+        #loadMore {
+            display: none; width: 100%; padding: 15px; background: #222; border: none; color: var(--highlight);
+            cursor: pointer; text-transform: uppercase; font-weight: bold; letter-spacing: 1px; margin-top: 0;
+            border-top: 1px solid var(--border);
+            font-family: var(--font-header);
+        }
+        #loadMore:hover { background: #333; }
+
+        /* Mobile Responsive Breakpoints */
+        @media (max-width: 900px) {
+            .header-container {
+                flex-direction: column;
+                justify-content: center;
+                text-align: center;
+            }
+            .nav-left { 
+                justify-content: center; 
+                width: 100%; 
+                order: 2; /* Move buttons below title */
+            }
+            .title-center { 
+                justify-content: center; 
+                width: 100%; 
+                order: 1; /* Title first */
+            }
+            .version-right { 
+                width: 100%; 
+                text-align: center; 
+                order: 3; /* Version last */
+                margin-top: 5px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- HEADER START -->
+    <header class="header-container">
+        
+        <!-- 1. Left: Navigation Buttons -->
+        <div class="nav-left">
+            <a href="https://doubleeclipse.github.io/esr-tools/" target="_blank" class="nav-btn">
+                ESR Tools <span class="ext-arrow">↗</span>
+            </a>
+            <a href="https://celestialrayone.github.io/Eastern_Sun_Resurrected/docs/" target="_blank" class="nav-btn">
+                ESR Site <span class="ext-arrow">↗</span>
+            </a>
+        </div>
+        
+        <!-- 2. Center: Logo & Title -->
+        <div class="title-center">
+            <img src="https://celestialrayone.github.io/Eastern_Sun_Resurrected/docs/images/esricon.png" alt="ESR Logo">
+            <h1>ESR Materials & Organs Drop Hunter</h1>
+        </div>
+
+        <!-- 3. Right: Versions -->
+        <div class="version-right">
+            <div class="ver-row">
+                <span class="ver-label">Tool Version:</span> 
+                <span class="ver-val">0.11</span>
+            </div>
+            <div class="ver-row">
+                <span class="ver-label">Based On ESR ver.:</span> 
+                <span class="ver-val">3.9.15</span>
+            </div>
+            <div class="ver-row">
+                <span class="ver-label">Latest ESR ver.:</span> 
+                <span class="ver-val ver-live" id="liveVersion">checking...</span>
+            </div>
+        </div>
+
+    </header>
+    <!-- HEADER END -->
+
+    <div class="controls">
+        <div class="c-group">
+            <label>1. Item (Required)</label>
+            <select id="selItem"><option value="">-- Select Item --</option></select>
+        </div>
+        <div class="c-group">
+            <label>2. Difficulty</label>
+            <select id="selDiff">
+                <option value="">Any Difficulty</option>
+                <option value="Normal">Normal</option>
+                <option value="Nightmare">Nightmare</option>
+                <option value="Hell">Hell</option>
+            </select>
+        </div>
+        <div class="c-group">
+            <label>3. Act</label>
+            <select id="selAct">
+                <option value="">Any Act</option>
+                <option value="1">Act I</option>
+                <option value="2">Act II</option>
+                <option value="3">Act III</option>
+                <option value="4">Act IV</option>
+                <option value="5">Act V (Campaign)</option>
+                <option value="6">Act V (Endgame Maps)</option>
+            </select>
+        </div>
+        <div class="c-group">
+            <label>4. Search by Mob</label>
+            <input type="text" id="selText" placeholder="e.g. 'Cows' or 'Fallen'">
+        </div>
+    </div>
+
+    <div id="status">Select an item to begin...</div>
+
+    <div class="table-wrap">
+        <table id="dataTable">
+            <thead>
+                <tr>
+                    <th width="40"></th>
+                    <th width="15%">Item</th>
+                    <th width="10%">Diff</th>
+                    <th width="8%" style="text-align:center">Act</th>
+                    <th width="22%">Map / Location</th>
+                    <th>Target Mobs</th>
+                </tr>
+            </thead>
+            <tbody id="tableBody"></tbody>
+        </table>
+        <button id="loadMore">Show More Results</button>
+    </div>
+
+    <footer>Vibe coded by DoubleEclipse using Google AI Studio</footer>
+
+    <!-- Data Source -->
+    <script src="drop_data.js"></script>
+
+    <script>
+        const IMG_MAP = {
+            "anvil stone": "anvil_stone.png",
+            "cook book": "cookbook.png",
+            "dragon stone": "dragonstone.png",
+            "gift": "gift.png",
+            "maple leaf": "maple_leaf.png",
+            "ore": "ore.png",
+            "scalp": "scalp.png",
+            "socket donut": "socket_donut.png",
+            "steak": "steak.png",
+            "worldstone shard": "worldstone_shard.png",
+            "heart": "heart.png", "brain": "brain.png", "jawbone": "jawbone.png",
+            "eye": "eye.png", "horn": "horn.png", "tail": "tail.png",
+            "flag": "flag.png", "fang": "fang.png", "quill": "quill.png",
+            "soul": "soul.png", "spleen": "spleen.png", "decipherer": "decipherer.png",
+            "elixir": "elixir.png"
+        };
+
+        let filteredData = [];
+        let renderCount = 0;
+        const BATCH = 50;
+
+        window.onload = function() {
+            // 1. Fetch Version
+            fetchESRVersion();
+
+            // 2. Initialize Data
+            if (typeof DROP_DATA === 'undefined') {
+                document.getElementById('status').innerText = "Error: drop_data.js not found.";
+                return;
+            }
+
+            const uniqueItems = [...new Set(DROP_DATA.map(d => d.i))].sort();
+            const selItem = document.getElementById('selItem');
+            uniqueItems.forEach(i => {
+                let opt = document.createElement('option');
+                opt.value = i;
+                opt.innerText = i;
+                selItem.appendChild(opt);
+            });
+
+            ['selItem', 'selDiff', 'selAct', 'selText'].forEach(id => {
+                const evType = id === 'selText' ? 'keyup' : 'change';
+                document.getElementById(id).addEventListener(evType, applyFilters);
+            });
+            document.getElementById('loadMore').addEventListener('click', renderBatch);
+        };
+
+        function fetchESRVersion() {
+            const url = "https://raw.githubusercontent.com/CelestialRayOne/Eastern_Sun_Resurrected_Lan/refs/heads/main/EasternSunLAN.mpq/modinfo.json";
+            
+            fetch(url)
+                .then(r => r.text()) // Get as text because the JSON contains comments
+                .then(text => {
+                    // Regex to find "Mod Version: X.X.X"
+                    const match = text.match(/Mod Version:\s*([0-9.]+)/i);
+                    const el = document.getElementById("liveVersion");
+                    if (match && match[1]) {
+                        el.innerText = match[1];
+                    } else {
+                        el.innerText = "Unknown";
+                        el.style.color = "#888";
+                    }
+                })
+                .catch(() => {
+                    const el = document.getElementById("liveVersion");
+                    el.innerText = "Offline";
+                    el.style.color = "#888";
+                });
+        }
+
+        function getImgPath(itemName) {
+            const key = itemName.toLowerCase();
+            const file = IMG_MAP[key] || "unknown.png"; 
+            return "images/" + file;
+        }
+
+        function getActDisplay(row) {
+            if (row.a === 0) return { txt: "Boss", cls: "act-0" };
+            
+            const romans = ["?", "I", "II", "III", "IV", "V"];
+            let txt = romans[row.a] || row.a;
+            let cls = "act-" + row.a;
+
+            // Endgame Map Check (Act 5 + ID > 132)
+            if (row.a === 5 && row.id > 132) {
+                cls = "act-endgame";
+            }
+            
+            return { txt: txt, cls: cls };
+        }
+
+        function applyFilters() {
+            const vItem = document.getElementById('selItem').value;
+            const vDiff = document.getElementById('selDiff').value;
+            const vAct = document.getElementById('selAct').value;
+            const vText = document.getElementById('selText').value.toLowerCase();
+
+            if (!vItem) {
+                document.getElementById('tableBody').innerHTML = "";
+                document.getElementById('loadMore').style.display = "none";
+                document.getElementById('status').innerText = "Select an item to begin...";
+                return;
+            }
+
+            filteredData = DROP_DATA.filter(d => {
+                if (d.i !== vItem) return false;
+                if (vDiff && d.d !== vDiff) return false;
+                
+                if (vAct) {
+                    if (vAct === "6") { // Endgame
+                        if (d.a !== 5 || d.id <= 132) return false;
+                    } else if (vAct === "5") { // Campaign A5
+                        if (d.a !== 5 || d.id > 132) return false;
+                    } else {
+                        if (String(d.a) !== vAct && d.a !== 0) return false;
+                    }
+                }
+                
+                if (vText) {
+                    const combined = (d.m + " " + d.f).toLowerCase();
+                    if (combined.indexOf(vText) === -1) return false;
+                }
+                return true;
+            });
+
+            // Sort: Act -> ID -> Map
+            filteredData.sort((a,b) => {
+                let aa = a.a === 0 ? 99 : a.a;
+                let bb = b.a === 0 ? 99 : b.a;
+                if(aa !== bb) return aa - bb;
+                if(a.id !== b.id) return a.id - b.id;
+                if(a.m < b.m) return -1;
+                if(a.m > b.m) return 1;
+                return 0;
+            });
+
+            renderCount = 0;
+            document.getElementById('tableBody').innerHTML = "";
+            document.getElementById('status').innerText = `Found ${filteredData.length} locations`;
+            renderBatch();
+        }
+
+        function renderBatch() {
+            const tbody = document.getElementById('tableBody');
+            const end = Math.min(renderCount + BATCH, filteredData.length);
+            let html = "";
+
+            for (let i = renderCount; i < end; i++) {
+                const row = filteredData[i];
+                const actData = getActDisplay(row);
+
+                html += `
+                    <tr>
+                        <td class="icon-col">
+                            <img src="${getImgPath(row.i)}" onerror="this.style.opacity=0.2">
+                        </td>
+                        <td style="font-weight:bold; color:var(--highlight)">${row.i}</td>
+                        <td class="diff-${row.d}">${row.d}</td>
+                        <td style="text-align:center"><span class="act-badge ${actData.cls}">${actData.txt}</span></td>
+                        <td>${row.m}</td>
+                        <td class="mob-families">${row.f}</td>
+                    </tr>
+                `;
+            }
+
+            tbody.insertAdjacentHTML('beforeend', html);
+            renderCount = end;
+
+            const btn = document.getElementById('loadMore');
+            btn.style.display = (renderCount < filteredData.length) ? "block" : "none";
+            btn.innerText = `Show More (${filteredData.length - renderCount} remaining)`;
+        }
+    </script>
+</body>
+</html>
