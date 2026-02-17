@@ -1,5 +1,5 @@
 const esrData = {
-    "modVersion": "3.9.15",
+    "modVersion": "3.10.11",
     "levels": [
         {
             "id": 1,
@@ -2407,7 +2407,7 @@ const esrData = {
                 "100",
                 "100"
             ],
-            "density": "2000",
+            "density": "2500",
             "uniques": "30-40",
             "neighbors": [
                 147,
