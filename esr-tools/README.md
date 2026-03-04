@@ -11,4 +11,4 @@ D2:R & ESR Modding Tools:
 D2R Modding Tools: https://www.d2rmodding.com/
 D2R Data Guide (Corrected): https://locbones.github.io/D2R_DataGuide/
 
-How to update ESR Version dependent tools: 1. Run the python script - it should produce a .js file 2. Replace the current .js file with the new one. The tool should be updated.
+How to update ESR Version dependent tools: 1. Open the python script and set the path to where your ESR mod is installed; 2. Run the python script - it should produce a .js file; 3. Replace the current .js file with the new one; 4. The tool should now be updated.
