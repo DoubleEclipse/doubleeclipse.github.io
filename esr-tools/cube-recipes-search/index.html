@@ -385,7 +385,7 @@ body.light-mode table.recipeTable td font[color="green"] {
           </div>
           
           <div class="info-group">
-            <div>Cube Recipes Search v0.156</div>
+            <div>Cube Recipes Search v0.157</div>
             <div id="versionDisplay">ESR Ver: Checking...</div>
             <div><span id="statusLight"></span><span id="loadedCount" class="highlight">Connecting...</span></div>
           </div>
@@ -436,17 +436,17 @@ const RECIPE_SOURCES = [
   {
     url: "https://easternsunresurrected.com/vessel_of_souls.htm",
     defaultSection: "Vessel of Souls",
-    sectionPrefix: "Vessel: " // Formats "Tier 1" -> "Vessel: Tier 1"
+    sectionPrefix: "Vessel: "
   },
   {
     url: "https://easternsunresurrected.com/kill_ledger.htm",
     defaultSection: "Kill Ledger",
-    sectionPrefix: "Ledger: " // Formats "Kill Bonuses" -> "Ledger: Kill Bonuses"
+    sectionPrefix: "Ledger: "
   },
   {
     url: "https://easternsunresurrected.com/weapon_mastery.html",
     defaultSection: "Weapon Mastery",
-    sectionPrefix: "Mastery: " // Formats "General Recipes" -> "Mastery: General Recipes"
+    sectionPrefix: "Mastery: "
   }
 ];
 
@@ -534,9 +534,23 @@ async function loadRecipes(){
           // Exclude complex data tables (e.g. 4+ column caps tables)
           if (tds.length > 3) return; 
 
-          // Check for Section / Subsection Header (single cell row spanning 2+ columns)
-          if (tds.length === 1 && (tds[0].colSpan >= 2 || tds[0].getAttribute("colspan"))) {
+          // ----------------------------------------------------
+          // Check for Section / Subsection Header (Single-cell row)
+          // ----------------------------------------------------
+          if (tds.length === 1) {
             const cell = tds[0];
+            const fullCellText = cleanLines(cell.textContent);
+
+            // Ignore Table of Contents navigation rows like [[Corruption Outcomes]]
+            if (fullCellText.startsWith("[[") || cell.querySelectorAll("a[href*='#']").length > 1) {
+              return;
+            }
+
+            // Ignore long description / warning blocks (e.g. the 400+ char "BE AWARE" box)
+            if (fullCellText.length > 180 || fullCellText.toLowerCase().includes("be aware")) {
+              return;
+            }
+
             const font = cell.querySelector("font");
             const size = font ? (font.getAttribute("size") || "") : "";
             
@@ -549,10 +563,16 @@ async function loadRecipes(){
             
             if (!text) return;
 
-            // Skip long description paragraphs mistakenly in a single row
-            if (text.length > 70) return;
+            // ----------------------------------------------------
+            // FIX: Group all "Secret Recipe 01" to "50" under one section
+            // ----------------------------------------------------
+            if (text.toLowerCase().startsWith("secret recipe")) {
+                currentSection = "Secret Recipes";
+                currentSubsection = text; // "Secret Recipe 01", etc.
+                return;
+            }
 
-            // Handle Section vs Subsection
+            // Standard Section vs Subsection handling
             if (size === "+1" || text.length <= 45 || !currentSection) { 
                 currentSection = (source.sectionPrefix || "") + text; 
                 currentSubsection = ""; 
@@ -565,7 +585,9 @@ async function loadRecipes(){
             return;
           }
 
+          // ----------------------------------------------------
           // Check for Recipe Row (2 or 3 columns)
+          // ----------------------------------------------------
           if (tds.length >= 2) {
               const t0 = (tds[0].innerText || "").toLowerCase().trim();
               const t1 = (tds[1].innerText || "").toLowerCase().trim();
@@ -576,7 +598,7 @@ async function loadRecipes(){
                 return;
               }
               
-              // Skip table-of-contents link rows like [[Tier 1]] [[Tier 2]]
+              // Skip table-of-contents link rows
               if (t0.startsWith("[[") || tds[0].querySelectorAll("a[href*='#']").length > 1) {
                 return;
               }
