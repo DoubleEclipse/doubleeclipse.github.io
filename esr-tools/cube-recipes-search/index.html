@@ -116,7 +116,7 @@ body {
 /* Title Row */
 .header-row {
   display: flex;
-  justify-content: center; /* Center title */
+  justify-content: center;
   align-items: center;
   width: 100%;
   margin-bottom: 5px;
@@ -140,7 +140,7 @@ body {
 }
 .logo img { width: 42px; height: 42px; transition: width 0.3s, height 0.3s; }
 
-/* Info Group (Ver / Loaded) - Absolute positioned to not mess up centering */
+/* Info Group (Ver / Loaded) */
 .info-group { 
     position: absolute; 
     right: 0;
@@ -165,12 +165,14 @@ body {
   border-radius: 4px;
   font-size: 11px;
   text-align: center;
-  line-height: 1; /* Tighter spacing */
+  line-height: 1.3;
   border: 1px solid var(--border-color);
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
-  gap: 3px; /* Smaller gap */
+  gap: 3px;
+  max-height: 72px;
+  overflow-y: auto;
 }
 .nav-links a {
   color: var(--link-color);
@@ -209,7 +211,7 @@ body {
 }
 .controls button:hover { border-color: var(--text-muted); }
 
-/* --- Compact Mode (Applied via JS on Scroll) --- */
+/* Compact Mode (On Scroll) */
 .sticky-top.compact .top-bar {
     height: 0; padding: 0; opacity: 0; border: none;
 }
@@ -218,9 +220,8 @@ body {
 .sticky-top.compact .logo img { width: 24px; height: 24px; }
 .sticky-top.compact h1 { font-size: var(--title-size-small); }
 .sticky-top.compact .info-group { opacity: 0; pointer-events: none; }
-/* Nav links stay visible in compact mode, just ensuring they don't jump */
 
-/* --- Results --- */
+/* Results */
 #results {
   width: 100%;
   display: flex;
@@ -259,6 +260,12 @@ table.recipeTable th, table.recipeTable td {
 }
 table.recipeTable th { background: var(--thead-bg); font-weight: bold; font-size: var(--table-header-size); }
 
+/* Force clean unified backgrounds across all imported sources */
+table.recipeTable td, 
+table.recipeTable td * {
+  background-color: transparent !important;
+}
+
 /* Section Styling */
 .section-name {
   text-align: center;
@@ -266,7 +273,7 @@ table.recipeTable th { background: var(--thead-bg); font-weight: bold; font-size
   font-size: var(--section-font-size);
   color: var(--color-section) !important;
   padding: 8px;
-  background: var(--input-bg);
+  background: var(--input-bg) !important;
   border-top: 2px solid var(--border-color) !important;
 }
 .subsection-name {
@@ -275,13 +282,13 @@ table.recipeTable th { background: var(--thead-bg); font-weight: bold; font-size
   font-size: var(--subsection-font-size);
   color: var(--color-subsection) !important;
   padding: 5px;
-  background: var(--panel-bg);
+  background: var(--panel-bg) !important;
   border-bottom: 1px solid var(--border-color);
 }
-.table-end { text-align: center; font-style: italic; color: var(--text-muted); background: var(--panel-bg); padding: 6px; }
+.table-end { text-align: center; font-style: italic; color: var(--text-muted); background: var(--panel-bg) !important; padding: 6px; }
 .no-results { text-align: center; color: var(--text-muted); padding: 20px; width: 100%; }
 
-/* --- Footer --- */
+/* Footer */
 footer { 
     margin-top: auto; 
     padding: 20px; 
@@ -298,34 +305,75 @@ footer .disclaimer {
     opacity: 0.7;
 }
 
-/* --- LIGHT MODE COLOR OVERRIDES --- */
+/* ========================================================
+   COLOR OVERRIDES & READABILITY TUNING ACROSS ALL SOURCES
+   ======================================================== */
+
+/* 1. DARK MODE: Boost contrast of dark colors imported from new pages */
+table.recipeTable td font[color="white"],
+table.recipeTable td font[color="#ffffff"] {
+  color: var(--text-main) !important; /* Soft Silver */
+}
+
+/* Brighten dark red (Corruptions, Worldstone Shards, Bosses) */
+table.recipeTable td font[color="red"],
+table.recipeTable td font[color="#ff0000"],
+table.recipeTable td font[color="#800000"],
+table.recipeTable td font[color="darkred"] {
+  color: #ff6e6e !important;
+}
+
+/* Brighten dark blue (Magic modifiers) */
+table.recipeTable td font[color="blue"],
+table.recipeTable td font[color="#0000ff"],
+table.recipeTable td font[color="#000080"],
+table.recipeTable td font[color="#00008b"],
+table.recipeTable td font[color="darkblue"] {
+  color: #72aaff !important;
+}
+
+/* Brighten purple (Anointments, Enhancements) */
+table.recipeTable td font[color="purple"],
+table.recipeTable td font[color="#800080"] {
+  color: #d187ff !important;
+}
+
+/* 2. LIGHT MODE: Invert light colors so they don't wash out on white */
+body.light-mode table.recipeTable td { color: #111; }
+
 body.light-mode table.recipeTable td font[color="white"],
 body.light-mode table.recipeTable td font[color="#ffffff"] {
   color: #000 !important;
   font-weight: bold;
 }
-/* Decipherers: Yellow -> Dark Gold */
+
 body.light-mode table.recipeTable td font[color="yellow"],
 body.light-mode table.recipeTable td font[color="#ffff00"] {
   color: #b8860b !important;
   font-weight: bold;
 }
-body.light-mode table.recipeTable td { color: #111; }
 
+body.light-mode table.recipeTable td font[color="cyan"],
+body.light-mode table.recipeTable td font[color="#00ffff"] {
+  color: #006699 !important;
+}
+
+body.light-mode table.recipeTable td font[color="lime"],
+body.light-mode table.recipeTable td font[color="#00ff00"],
+body.light-mode table.recipeTable td font[color="green"] {
+  color: #007700 !important;
+}
 </style>
 </head>
 <body>
 
 <div class="wrap">
   
-  <!-- Sticky Header Wrapper -->
   <div class="sticky-top" id="stickyHeader">
     
-    <!-- Top Bar for External Links -->
     <div class="top-bar">
         <a href="https://doubleeclipse.github.io/esr-tools/">← ESR Tools Hub</a>
-		<a href="https://easternsunresurrected.com/Eastern%20Sun%20Resurrected%20Cube%20Recipes.html">Official Cube Page ↗</a>
-        <!-- <a href="https://celestialrayone.github.io/Eastern_Sun_Resurrected/docs/Eastern%20Sun%20Resurrected%20Cube%20Recipes.html">Official Cube Page ↗</a> -->
+        <a href="https://easternsunresurrected.com/Eastern%20Sun%20Resurrected%20Cube%20Recipes.html" target="_blank">Official Cube Page ↗</a>
     </div>
 
     <div class="header-content">
@@ -333,19 +381,16 @@ body.light-mode table.recipeTable td { color: #111; }
         <div class="header-row">
           <div class="title-group">
             <div class="logo"><img src="http://easternsunresurrected.com/images/esricon.png" alt="ES Icon"></div>
-			<!-- <div class="logo"><img src="https://celestialrayone.github.io/Eastern_Sun_Resurrected/docs/images/esricon.png" alt="ES Icon"></div> -->
             <h1 id="pageTitle">Cube Recipes Search</h1>
           </div>
           
           <div class="info-group">
-			<div>Cube Recipes Search v0.154</div>
-			<div id="versionDisplay">ESR Ver: Checking...</div>
+            <div>Cube Recipes Search v0.156</div>
+            <div id="versionDisplay">ESR Ver: Checking...</div>
             <div><span id="statusLight"></span><span id="loadedCount" class="highlight">Connecting...</span></div>
-            <!-- Count removed from here, put below controls -->
           </div>
         </div>
 
-        <!-- Nav Links (Visible on Scroll) -->
         <div class="nav-links" id="navBar">Loading sections...</div>
 
         <div class="controls">
@@ -355,7 +400,6 @@ body.light-mode table.recipeTable td { color: #111; }
           <button id="themeBtn">☀ Theme</button>
         </div>
 
-        <!-- Count displayed here -->
         <div class="results-count" id="resultsCountBar"></div>
     </div>
   </div>
@@ -374,21 +418,52 @@ body.light-mode table.recipeTable td { color: #111; }
 
 <script>
 (async function(){
-const URL="https://easternsunresurrected.com/Eastern%20Sun%20Resurrected%20Cube%20Recipes.html";
-const modInfoURL="https://raw.githubusercontent.com/CelestialRayOne/Eastern_Sun_Resurrected_Lan/refs/heads/main/EasternSunLAN.mpq/modinfo.json?t=" + new Date().getTime();
-const changelogURL="https://easternsunresurrected.com/changelogs.html";
 
-const loadedEl=document.getElementById("loadedCount");
-const resultsDiv=document.getElementById("results");
-const resultsCountBar=document.getElementById("resultsCountBar");
-const inputBox=document.getElementById("inputSearch");
-const outputBox=document.getElementById("outputSearch");
-const statusLight=document.getElementById("statusLight");
-const pageTitle=document.getElementById("pageTitle");
-const versionDisplay=document.getElementById("versionDisplay");
-const navBar=document.getElementById("navBar");
-const themeBtn=document.getElementById("themeBtn");
-const stickyHeader=document.getElementById("stickyHeader");
+// ==========================================
+// ALL 5 RECIPE SOURCES CONFIGURATION
+// ==========================================
+const RECIPE_SOURCES = [
+  {
+    url: "https://easternsunresurrected.com/Eastern%20Sun%20Resurrected%20Cube%20Recipes.html",
+    defaultSection: "General",
+    sectionPrefix: ""
+  },
+  {
+    url: "https://easternsunresurrected.com/special_crafting_outcomes.htm",
+    defaultSection: "Special Crafting",
+    sectionPrefix: ""
+  },
+  {
+    url: "https://easternsunresurrected.com/vessel_of_souls.htm",
+    defaultSection: "Vessel of Souls",
+    sectionPrefix: "Vessel: " // Formats "Tier 1" -> "Vessel: Tier 1"
+  },
+  {
+    url: "https://easternsunresurrected.com/kill_ledger.htm",
+    defaultSection: "Kill Ledger",
+    sectionPrefix: "Ledger: " // Formats "Kill Bonuses" -> "Ledger: Kill Bonuses"
+  },
+  {
+    url: "https://easternsunresurrected.com/weapon_mastery.html",
+    defaultSection: "Weapon Mastery",
+    sectionPrefix: "Mastery: " // Formats "General Recipes" -> "Mastery: General Recipes"
+  }
+];
+
+const modInfoURL = "https://raw.githubusercontent.com/CelestialRayOne/Eastern_Sun_Resurrected_Lan/refs/heads/main/EasternSunLAN.mpq/modinfo.json?t=" + new Date().getTime();
+const changelogURL = "https://easternsunresurrected.com/changelogs.html";
+
+const loadedEl = document.getElementById("loadedCount");
+const resultsDiv = document.getElementById("results");
+const resultsCountBar = document.getElementById("resultsCountBar");
+const inputBox = document.getElementById("inputSearch");
+const outputBox = document.getElementById("outputSearch");
+const statusLight = document.getElementById("statusLight");
+const pageTitle = document.getElementById("pageTitle");
+const versionDisplay = document.getElementById("versionDisplay");
+const navBar = document.getElementById("navBar");
+const themeBtn = document.getElementById("themeBtn");
+const stickyHeader = document.getElementById("stickyHeader");
 
 function cleanLines(str){return str.split(/\n/).map(l=>l.trim()).filter(l=>l.length>0).join("\n");}
 function sanitize(html){return String(html).replace(/>\s+</g,'><').trim();}
@@ -413,15 +488,14 @@ async function fetchModVersion(){
 }
 fetchModVersion();
 
-// 2. Fetch Cube.htm for Title
+// 2. Fetch Title from Primary Cube Page
 async function fetchCubeTitle(){
   try{
-    const resp=await fetch(URL);
+    const resp = await fetch(RECIPE_SOURCES[0].url);
     if(resp.ok){
-      const html=await resp.text();
+      const html = await resp.text();
       const match = html.match(/<title>(.*?)<\/title>/i);
       if(match && match[1]){
-         // Clean title
          let t = match[1].replace(/-/g,'').trim() + " Cube Recipes Search";
          document.title = t;
          pageTitle.textContent = t; 
@@ -431,88 +505,120 @@ async function fetchCubeTitle(){
 }
 fetchCubeTitle();
 
-// 3. Load Recipes
+// 3. Load Recipes from ALL Sources
 async function loadRecipes(){
-  try{
-    const resp=await fetch(URL);
-    if(!resp.ok){
-      loadedEl.textContent="Offline";
-      statusLight.style.background="red";
-      return [];
-    }
-    statusLight.style.background="#4f4"; 
-    const html=await resp.text();
-    const parser=new DOMParser();
-    const doc=parser.parseFromString(html,"text/html");
-    const data=[];
-    let currentSection="", currentSubsection="";
+  const allRecipes = [];
+  let successCount = 0;
 
-    doc.querySelectorAll("table").forEach(table=>{
-      table.querySelectorAll("tr").forEach(row=>{
-        const tds=row.querySelectorAll("td");
-        
-        // Exclude complex tables (Gem melding has >3 cols)
-        if (tds.length > 3) return; 
+  for (const source of RECIPE_SOURCES) {
+    if (!source.url) continue;
 
-        // Section Header
-        if(tds.length===1 && tds[0].colSpan==2){
-          const font=tds[0].querySelector("font");
-          if(!font) return;
-          const size=font.getAttribute("size")||"";
-          let text="";
-          const b=font.querySelector("b");
-          if(b) text=cleanLines(b.textContent);
-          else text=cleanLines(font.textContent);
+    try {
+      const resp = await fetch(source.url);
+      if (!resp.ok) {
+        console.warn(`Failed to load ${source.url} (status: ${resp.status})`);
+        continue;
+      }
+
+      const html = await resp.text();
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(html, "text/html");
+
+      let currentSection = source.defaultSection || "";
+      let currentSubsection = "";
+
+      doc.querySelectorAll("table").forEach(table => {
+        table.querySelectorAll("tr").forEach(row => {
+          const tds = row.querySelectorAll("td, th");
           
-          if(!text) return;
+          // Exclude complex data tables (e.g. 4+ column caps tables)
+          if (tds.length > 3) return; 
 
-          if(size=="+1"){ 
-              currentSection=text; 
-              currentSubsection=""; 
-              return;
-          }
-          if(size=="" && text.length<=60){ 
-              currentSubsection=text; 
-              return;
-          }
-          return;
-        }
+          // Check for Section / Subsection Header (single cell row spanning 2+ columns)
+          if (tds.length === 1 && (tds[0].colSpan >= 2 || tds[0].getAttribute("colspan"))) {
+            const cell = tds[0];
+            const font = cell.querySelector("font");
+            const size = font ? (font.getAttribute("size") || "") : "";
+            
+            // Extract bold header or font text
+            const boldEl = cell.querySelector("b, strong, h1, h2, h3, h4");
+            let text = "";
+            if (boldEl) text = cleanLines(boldEl.textContent);
+            else if (font) text = cleanLines(font.textContent);
+            else text = cleanLines(cell.textContent.split("\n")[0]);
+            
+            if (!text) return;
 
-        // Recipe Row
-        if(tds.length>=2){
-            const bg0=(tds[0].getAttribute("bgcolor")||"").toLowerCase().trim();
-            const bg1=(tds[1].getAttribute("bgcolor")||"").toLowerCase().trim();
-            if(bg0==="#1e0000"||bg0==="#300000"||bg1==="#1e0000"||bg1==="#300000") return;
-            
-            const t0=(tds[0].innerText||"").toLowerCase().trim();
-            const t1=(tds[1].innerText||"").toLowerCase().trim();
-            if(t0==="input" && t1==="output") return;
-            
-            const inputHTML=sanitize(tds[0].innerHTML);
-            const outputHTML=sanitize(tds[1].innerHTML);
-            if(!inputHTML||!outputHTML) return;
-            
-            data.push({
-                inputHTML, 
-                outputHTML, 
-                section: currentSection, 
-                subsection: currentSubsection
-            });
-        }
+            // Skip long description paragraphs mistakenly in a single row
+            if (text.length > 70) return;
+
+            // Handle Section vs Subsection
+            if (size === "+1" || text.length <= 45 || !currentSection) { 
+                currentSection = (source.sectionPrefix || "") + text; 
+                currentSubsection = ""; 
+                return;
+            }
+            if (size === "" && text.length <= 60) { 
+                currentSubsection = text; 
+                return;
+            }
+            return;
+          }
+
+          // Check for Recipe Row (2 or 3 columns)
+          if (tds.length >= 2) {
+              const t0 = (tds[0].innerText || "").toLowerCase().trim();
+              const t1 = (tds[1].innerText || "").toLowerCase().trim();
+              
+              // Skip table headers: "Input | Output", "Input(s) | Possible Outcome(s)", etc.
+              if ((t0.startsWith("input") || t0 === "ingredient" || t0 === "ingredients") && 
+                  (t1.includes("output") || t1.includes("outcome") || t1.includes("result"))) {
+                return;
+              }
+              
+              // Skip table-of-contents link rows like [[Tier 1]] [[Tier 2]]
+              if (t0.startsWith("[[") || tds[0].querySelectorAll("a[href*='#']").length > 1) {
+                return;
+              }
+              
+              // Clean and sanitize HTML content
+              const inputHTML = sanitize(tds[0].innerHTML);
+              const outputHTML = sanitize(tds[tds.length - 1].innerHTML);
+              if (!inputHTML || !outputHTML) return;
+              
+              allRecipes.push({
+                  inputHTML, 
+                  outputHTML, 
+                  section: currentSection, 
+                  subsection: currentSubsection
+              });
+          }
+        });
       });
-    });
-    return data;
-  }catch(e){
-    loadedEl.textContent="Error";
-    statusLight.style.background="red";
-    return [];
+
+      successCount++;
+    } catch (e) {
+      console.error(`Error loading ${source.url}`, e);
+    }
   }
+
+  if (successCount === 0) {
+    loadedEl.textContent = "Offline";
+    statusLight.style.background = "red";
+    return [];
+  } else if (successCount < RECIPE_SOURCES.length) {
+    statusLight.style.background = "orange"; // partial load
+  } else {
+    statusLight.style.background = "#4f4"; // all online
+  }
+
+  return allRecipes;
 }
 
-const recipes=await loadRecipes();
-loadedEl.textContent=`${recipes.length} Recipes`;
+const recipes = await loadRecipes();
+loadedEl.textContent = `${recipes.length} Recipes`;
 
-// 4. Generate Nav
+// 4. Generate Dynamic Navigation
 function generateNav() {
     navBar.innerHTML = "";
     const sections = [...new Set(recipes.map(r => r.section).filter(s => s))];
@@ -533,15 +639,13 @@ function generateNav() {
           e.preventDefault();
           const el = document.getElementById(targetId);
           if(el) {
-            // Adjust offset based on header state
             const offset = stickyHeader.classList.contains('compact') ? 140 : 180;
             const elementPosition = el.getBoundingClientRect().top;
             const offsetPosition = elementPosition + window.pageYOffset - offset;
             window.scrollTo({ top: offsetPosition, behavior: "smooth" });
           } else {
-             // Visual feedback if filtered
              inputBox.style.borderColor = "var(--color-section)";
-             setTimeout(()=>inputBox.style.borderColor = "var(--input-border)", 300);
+             setTimeout(() => inputBox.style.borderColor = "var(--input-border)", 300);
           }
         };
         navBar.appendChild(a);
@@ -549,45 +653,44 @@ function generateNav() {
 }
 generateNav();
 
-// 5. Render
+// 5. Render Function
 function render(){
-  const inF=inputBox.value.toLowerCase();
-  const outF=outputBox.value.toLowerCase();
+  const inF = inputBox.value.toLowerCase();
+  const outF = outputBox.value.toLowerCase();
   
-  const filtered=recipes.filter(r=>r.inputHTML.toLowerCase().includes(inF)&&r.outputHTML.toLowerCase().includes(outF));
+  const filtered = recipes.filter(r => r.inputHTML.toLowerCase().includes(inF) && r.outputHTML.toLowerCase().includes(outF));
   
-  // Update count text
   resultsCountBar.textContent = `Found: ${filtered.length}`;
-  
-  resultsDiv.innerHTML="";
+  resultsDiv.innerHTML = "";
 
-  if(filtered.length===0){
-      resultsDiv.innerHTML='<div class="no-results">No matching recipes found.</div>'; 
+  if(filtered.length === 0){
+      resultsDiv.innerHTML = '<div class="no-results">No matching recipes found.</div>'; 
       return;
   }
 
-  const table=document.createElement("table"); table.className="recipeTable";
+  const table = document.createElement("table"); 
+  table.className = "recipeTable";
   
-  const thead=document.createElement("thead"); 
-  const trHead=document.createElement("tr");
-  const th1=document.createElement("th"); th1.textContent="Input";
-  const th2=document.createElement("th"); th2.textContent="Output";
+  const thead = document.createElement("thead"); 
+  const trHead = document.createElement("tr");
+  const th1 = document.createElement("th"); th1.textContent = "Input";
+  const th2 = document.createElement("th"); th2.textContent = "Output";
   trHead.appendChild(th1); trHead.appendChild(th2); 
   thead.appendChild(trHead); 
   table.appendChild(thead);
   
-  const tbody=document.createElement("tbody");
+  const tbody = document.createElement("tbody");
 
   let lastSection = "";
   let lastSubsection = "";
 
-  filtered.forEach(r=>{
+  filtered.forEach(r => {
     // Section Header
     if(r.section !== lastSection) {
-        const tr=document.createElement("tr"); 
+        const tr = document.createElement("tr"); 
         const idString = "sec-" + r.section.replace(/[^a-zA-Z0-9]/g, "_");
         tr.id = idString; 
-        tr.innerHTML=`<td colspan="2" class="section-name">${r.section}</td>`; 
+        tr.innerHTML = `<td colspan="2" class="section-name">${r.section}</td>`; 
         tbody.appendChild(tr); 
         
         lastSection = r.section;
@@ -596,20 +699,20 @@ function render(){
     
     // Subsection Header
     if(r.subsection && r.subsection !== lastSubsection){
-      const tr=document.createElement("tr"); 
-      tr.innerHTML=`<td colspan="2" class="subsection-name">${r.subsection}</td>`; 
+      const tr = document.createElement("tr"); 
+      tr.innerHTML = `<td colspan="2" class="subsection-name">${r.subsection}</td>`; 
       tbody.appendChild(tr);
       lastSubsection = r.subsection;
     }
     
     // Recipe
-    const tr=document.createElement("tr"); 
-    tr.innerHTML=`<td class="input-text">${r.inputHTML}</td><td class="output-text">${r.outputHTML}</td>`; 
+    const tr = document.createElement("tr"); 
+    tr.innerHTML = `<td class="input-text">${r.inputHTML}</td><td class="output-text">${r.outputHTML}</td>`; 
     tbody.appendChild(tr);
   });
 
-  const endTr=document.createElement("tr"); 
-  endTr.innerHTML=`<td colspan="2" class="table-end">End of Results</td>`; 
+  const endTr = document.createElement("tr"); 
+  endTr.innerHTML = `<td colspan="2" class="table-end">End of Results</td>`; 
   tbody.appendChild(endTr);
   
   table.appendChild(tbody); 
@@ -617,13 +720,13 @@ function render(){
 }
 
 // 6. Events
-const debounce=(fn,ms=120)=>{let t;return(...a)=>{clearTimeout(t);t=setTimeout(()=>fn(...a),ms);};};
-inputBox.addEventListener("input",debounce(render));
-outputBox.addEventListener("input",debounce(render));
+const debounce = (fn, ms=120) => {let t; return (...a) => {clearTimeout(t); t = setTimeout(() => fn(...a), ms);};};
+inputBox.addEventListener("input", debounce(render));
+outputBox.addEventListener("input", debounce(render));
 
-document.getElementById("clearBtn").addEventListener("click",()=>{
-    inputBox.value="";
-    outputBox.value="";
+document.getElementById("clearBtn").addEventListener("click", () => {
+    inputBox.value = "";
+    outputBox.value = "";
     inputBox.focus();
     render();
 });
@@ -643,10 +746,10 @@ window.addEventListener("scroll", () => {
     }
 });
 
-document.addEventListener("keydown",e=>{
-    if(e.altKey && e.key.toLowerCase()==="z"){inputBox.focus();e.preventDefault();} 
-    if(e.altKey && e.key.toLowerCase()==="x"){outputBox.focus();e.preventDefault();} 
-    if(e.altKey && e.key.toLowerCase()==="r"){inputBox.value="";outputBox.value="";render();}
+document.addEventListener("keydown", e => {
+    if(e.altKey && e.key.toLowerCase() === "z"){inputBox.focus(); e.preventDefault();} 
+    if(e.altKey && e.key.toLowerCase() === "x"){outputBox.focus(); e.preventDefault();} 
+    if(e.altKey && e.key.toLowerCase() === "r"){inputBox.value = ""; outputBox.value = ""; render();}
 });
 
 render();
